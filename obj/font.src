@@ -1,0 +1,6 @@
+; Zilog eZ80 ANSI C Compiler Release 3.4
+; -nomodsect -optspeed -noreduceopt -peephole -globalopt
+; -localcse -const=ROM 
+	FILE	"..\..\..\CE-PRO~1\MARIO\SRC\FONT.C"
+	.assume ADL=1
+	END

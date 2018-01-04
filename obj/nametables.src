@@ -1,0 +1,30 @@
+; Zilog eZ80 ANSI C Compiler Release 3.4
+; -nomodsect -optspeed -noreduceopt -peephole -globalopt
+; -localcse -const=ROM 
+	FILE	"..\..\..\CE-PRO~1\MARIO\SRC\NAMETABLES.C"
+	.assume ADL=1
+	SEGMENT BSS
+_nametable0:
+	DS	1200
+_nametable1:
+	DS	1200
+_nametable2:
+	DS	1200
+_nametable3:
+	DS	1200
+_rendertable:
+	DS	1200
+	XDEF _rendertable
+	XDEF _nametable3
+	XDEF _nametable2
+	XDEF _nametable1
+	XDEF _nametable0
+;    1	#include <stdint.h>
+;    2	
+;    3	#include "nametables.h"
+;    4	
+;    5	uint8_t nametable0[1200];
+;    6	uint8_t nametable1[1200];
+;    7	uint8_t nametable2[1200];
+;    8	uint8_t nametable3[1200];
+	END

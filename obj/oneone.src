@@ -1,0 +1,667 @@
+; Zilog eZ80 ANSI C Compiler Release 3.4
+; -nomodsect -optspeed -noreduceopt -peephole -globalopt
+; -localcse -const=ROM 
+	FILE	"..\..\..\CE-PRO~1\MARIO\SRC\ONEONE.C"
+	.assume ADL=1
+	SEGMENT DATA
+_width:
+	DW	80
+_height:
+	DW	30
+	SEGMENT BSS
+_x:
+	DS	2*1
+_mx:
+	DS	4*1
+_my:
+	DS	4*1
+_tilemap:
+	DS	18
+_level:
+	DS	2400
+_blocks:
+	DS	2*1
+_xBlocks:
+	DS	160
+_yBlocks:
+	DS	160
+;    1	#include <stdint.h>
+;    2	#include <stdlib.h>
+;    3	
+;    4	#include "oneone.h"
+;    5	
+;    6	uint16_t width = 80; // level width
+;    7	uint16_t height = 30; // level height
+;    8	
+;    9	uint16_t x; // screen x
+;   10	uint32_t mx; // mario's x position (1/256 of a pixel)
+;   11	uint32_t my; // mario's y position (1/256 of a pixel)
+;   12	
+;   13	gfx_tilemap_t tilemap;
+;   14	
+;   15	uint8_t level[2400];
+;   16	
+;   17	uint16_t blocks;
+;   18	uint16_t xBlocks[80]; // width
+;   19	uint16_t yBlocks[80]; // width
+	SEGMENT CODE
+;   20	
+;   21	void newBlock(uint16_t bx, uint16_t by, uint16_t i);
+;   22	
+;   23	void oneone() {
+_oneone:
+	LD	HL,-138
+	CALL	__frameset
+;   24		uint8_t bush0[8] = {0x24, 0x36, 0x37, 0x36, 0x37, 0x36, 0x37, 0x24};
+	LEA	DE,IX+-82
+	LD	HL,_0temp0
+	LD	BC,8
+	LDIR	
+;   25		uint8_t bush1[8] = {0x35, 0x25, 0x25, 0x25, 0x25, 0x25, 0x25, 0x38};
+	LEA	DE,IX+-74
+	LD	HL,_1temp1
+	LD	BC,8
+	LDIR	
+;   26		uint8_t bush2[4] = {0x24, 0x36, 0x37, 0x24};
+	LEA	DE,IX+-14
+	LD	HL,_2temp2
+	LD	BC,4
+	LDIR	
+;   27		uint8_t bush3[4] = {0x35, 0x25, 0x25, 0x38};
+	LEA	DE,IX+-18
+	LD	HL,_3temp3
+	LD	BC,4
+	LDIR	
+;   28		uint8_t bush4[6] = {0x24, 0x36, 0x37, 0x36, 0x37, 0x24};
+	LEA	DE,IX+-38
+	LD	HL,_4temp4
+	LD	BC,6
+	LDIR	
+;   29		uint8_t bush5[6] = {0x35, 0x25, 0x25, 0x25, 0x25, 0x38};
+	LEA	DE,IX+-32
+	LD	HL,_5temp5
+	LD	BC,6
+	LDIR	
+;   30		uint8_t hill0[10] = {0x24, 0x24, 0x24, 0x24, 0x31, 0x32};
+	LD	HL,IX
+	LD	BC,-132
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_6temp6
+	LD	BC,10
+	LDIR	
+;   31		uint8_t hill1[10] = {0x24, 0x24, 0x24, 0x30, 0x26, 0x34, 0x33};
+	LEA	DE,IX+-92
+	LD	HL,_7temp7
+	LD	BC,10
+	LDIR	
+;   32		uint8_t hill2[10] = {0x24, 0x24, 0x30, 0x26, 0x26, 0x26, 0x26, 0x33};
+	LEA	DE,IX+-102
+	LD	HL,_8temp8
+	LD	BC,10
+	LDIR	
+;   33		uint8_t hill3[10] = {0x24, 0x30, 0x26, 0x34, 0x26, 0x26, 0x34, 0x26, 0x33};
+	LEA	DE,IX+-112
+	LD	HL,_9temp9
+	LD	BC,10
+	LDIR	
+;   34		uint8_t hill4[10] = {0x30, 0x26, 0x26, 0x26, 0x26, 0x26, 0x26, 0x26, 0x26, 0x33};
+	LEA	DE,IX+-122
+	LD	HL,_10temp10
+	LD	BC,10
+	LDIR	
+;   35		uint8_t cloud0[4] = {0x24, 0x36, 0x37, 0x24};
+	LEA	DE,IX+-22
+	LD	HL,_11temp11
+	LD	BC,4
+	LDIR	
+;   36		uint8_t cloud1[4] = {0x35, 0x25, 0x25, 0x38};
+	LEA	DE,IX+-26
+	LD	HL,_12temp12
+	LD	BC,4
+	LDIR	
+;   37		uint8_t cloud2[4] = {0x35, 0x25, 0x25, 0x38};
+	LEA	DE,IX+-10
+	LD	HL,_13temp13
+	LD	BC,4
+	LDIR	
+;   38		uint8_t cloud3[8] = {0x24, 0x36, 0x37, 0x36, 0x37, 0x36, 0x37, 0x24};
+	LEA	DE,IX+-58
+	LD	HL,_14temp14
+	LD	BC,8
+	LDIR	
+;   39		uint8_t cloud4[8] = {0x35, 0x25, 0x25, 0x25, 0x25, 0x25, 0x25, 0x38};
+	LEA	DE,IX+-66
+	LD	HL,_15temp15
+	LD	BC,8
+	LDIR	
+;   40		uint8_t cloud6[6] = {0x24, 0x36, 0x37, 0x36, 0x37, 0x24};
+	LEA	DE,IX+-44
+	LD	HL,_16temp16
+	LD	BC,6
+	LDIR	
+;   41		uint8_t cloud7[6] = {0x35, 0x25, 0x25, 0x25, 0x25, 0x38};
+	LEA	DE,IX+-50
+	LD	HL,_17temp17
+	LD	BC,6
+	LDIR	
+;   42		uint8_t ground[4] = {0xb4, 0xb5, 0xb6, 0xb7};
+	LEA	DE,IX+-6
+	LD	HL,_18temp18
+	LD	BC,4
+	LDIR	
+;   43		
+;   44		uint16_t i;
+;   45		
+;   46		width = 80;
+	LD	HL,_width
+	LD	(HL),80
+	INC	HL
+	LD	(HL),0
+;   47		height = 30;
+	LD	HL,_height
+	LD	(HL),30
+	INC	HL
+	LD	(HL),0
+;   48		
+;   49		mx = 40 * 128; // pixel position * 128
+	LD	BC,5120
+	LD	(_mx),BC
+	XOR	A,A
+	LD	(_mx+3),A
+;   50		my = 193 * 128; // pixel position * 128
+	LD	BC,24704
+	LD	(_my),BC
+	XOR	A,A
+	LD	(_my+3),A
+;   51		
+;   52		//for(i = 0; i < width * height; i++) {level[i] = (uint8_t)NULL;}
+;   53		
+;   54		/*level[0] = 0xb4;
+;   55		level[40] = 0xb5;
+;   56		level[80] = 0xb6;
+;   57		level[120] = 0xb7;*/
+;   58		
+;   59		for(i = 0; i < width; i++) {
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_22
+L_20:
+;   60			level[width * 26 + i] = ground[i % 2];
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,2
+	CALL	__irems
+	PUSH	IY
+	LEA	IY,IX+-128	; spill
+	LD	(IY+-10),HL
+	LD	HL,(IY+-10)
+	POP	IY
+	LD	BC,HL
+	LEA	HL,IX+-6
+	ADD	HL,BC
+	LD	IY,HL
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,2080
+	ADD	HL,BC
+	LD	BC,_level
+	ADD	HL,BC
+;   61			level[width * 27 + i] = ground[(i % 2) + 2];
+	PUSH	IY
+	LEA	IY,IX+-128	; spill
+	LD	(IY+-7),HL
+	LD	HL,(IY+-10)
+	POP	IY
+	LD	DE,HL
+	PUSH	IY
+	LEA	IY,IX+-128	; unspill
+	LD	HL,(IY+-7)
+	POP	IY
+	INC	DE
+	LD	A,(IY)
+	LD	(HL),A
+	INC	DE
+	LD	BC,DE
+	LEA	HL,IX+-6
+	ADD	HL,BC
+	LD	IY,HL
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,2160
+	ADD	HL,BC
+	LD	BC,_level
+	ADD	HL,BC
+	LD	A,(IY)
+	LD	(HL),A
+;   62			level[width * 28 + i] = ground[i % 2];
+	LEA	HL,IX+-6
+	PUSH	IY
+	LEA	IY,IX+-128	; spill
+	LD	(IY+-7),HL
+	LD	HL,(IY+-10)
+	LD	BC,(IY+-7)
+	POP	IY
+	ADD	HL,BC
+	LD	IY,HL
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,2240
+	ADD	HL,BC
+	LD	BC,_level
+	ADD	HL,BC
+	LD	A,(IY)
+	LD	(HL),A
+;   63			level[width * 29 + i] = ground[(i % 2) + 2];
+	LEA	HL,IX+-6
+	LD	BC,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,2320
+	ADD	HL,BC
+	LD	BC,_level
+	ADD	HL,BC
+	LD	A,(IY)
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+;   64		}
+L_22:
+	LD.LIS	BC,80
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_20
+;   65		
+;   66		blocks = width;
+	LD	HL,_blocks
+	LD	(HL),80
+	INC	HL
+	LD	(HL),0
+;   67		
+;   68		for(i = 0; i < blocks; i += 2) {
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_26
+L_24:
+;   69			newBlock(i + 2, 13, i);
+	LD	BC,(IX+-2)
+	PUSH	BC
+	LD	BC,13
+	PUSH	BC
+	LD	BC,(IX+-2)
+	INC	BC
+	INC	BC
+	PUSH	BC
+	CALL	_newBlock
+	POP	BC
+	POP	BC
+	POP	BC
+;   70			newBlock(i + 2, 14, i + 1);
+	LD	BC,(IX+-2)
+	INC	BC
+	PUSH	BC
+	LD	BC,14
+	PUSH	BC
+	LD	BC,(IX+-2)
+	INC	BC
+	INC	BC
+	PUSH	BC
+	CALL	_newBlock
+	POP	BC
+	POP	BC
+	POP	BC
+	LD	HL,(IX+-2)
+	INC	HL
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+;   71		}
+L_26:
+	LD	BC,(_blocks)
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_24
+;   72		
+;   73		/*for(i = 0; i < 4; i++) {
+;   74			level[width * 5 + i + 17] = cloud0[i];
+;   75			level[width * 6 + i + 17] = cloud1[i];
+;   76		}
+;   77		for(i = 0; i < 6; i++) {
+;   78			level[width * 21 + i] = hill0[i];
+;   79			level[width * 23 + i + 32] = hill0[i];
+;   80			level[width * 21 + i + 96] = hill0[i];
+;   81			level[width * 23 + i + 128] = hill0[i];
+;   82			level[width * 21 + i + 192] = hill0[i];
+;   83			level[width * 23 + i + 224] = hill0[i];
+;   84			level[width * 21 + i + 288] = hill0[i];
+;   85			level[width * 23 + i + 320] = hill0[i];
+;   86			level[width * 21 + i + 384] = hill0[i];
+;   87			level[width * 23 + i + 416] = hill0[i];
+;   88		}
+;   89		for(i = 0; i < 7; i++) {
+;   90			level[width * 22 + i] = hill1[i];
+;   91			level[width * 24 + i + 32] = hill1[i];
+;   92			level[width * 22 + i + 96] = hill1[i];
+;   93			level[width * 24 + i + 128] = hill1[i];
+;   94			level[width * 22 + i + 192] = hill1[i];
+;   95			level[width * 24 + i + 224] = hill1[i];
+;   96			level[width * 22 + i + 288] = hill1[i];
+;   97			level[width * 24 + i + 320] = hill1[i];
+;   98			level[width * 22 + i + 384] = hill1[i];
+;   99			level[width * 24 + i + 416] = hill1[i];
+;  100		}
+;  101		for(i = 0; i < 8; i++) {
+;  102			level[width * 23 + i] = hill2[i];
+;  103			level[width * 25 + i + 32] = hill2[i];
+;  104			level[width * 23 + i + 96] = hill2[i];
+;  105			level[width * 25 + i + 128] = hill2[i];
+;  106			level[width * 23 + i + 192] = hill2[i];
+;  107			level[width * 25 + i + 224] = hill2[i];
+;  108			level[width * 23 + i + 288] = hill2[i];
+;  109			level[width * 25 + i + 320] = hill2[i];
+;  110			level[width * 23 + i + 384] = hill2[i];
+;  111			level[width * 25 + i + 416] = hill2[i];
+;  112			
+;  113			level[width * 24 + i + 23] = bush0[i];
+;  114			level[width * 25 + i + 23] = bush1[i];
+;  115			level[width * 24 + i + 119] = bush0[i];
+;  116			level[width * 25 + i + 119] = bush1[i];
+;  117			level[width * 24 + i + 215] = bush0[i];
+;  118			level[width * 25 + i + 215] = bush1[i];
+;  119			level[width * 24 + i + 311] = bush0[i];
+;  120			level[width * 25 + i + 311] = bush1[i];
+;  121			level[width * 24 + i + 407] = bush0[i];
+;  122			level[width * 25 + i + 407] = bush1[i];
+;  123		}
+;  124		for(i = 0; i < 9; i++) {
+;  125			level[width * 24 + i] = hill3[i];
+;  126			level[width * 24 + i + 96] = hill3[i];
+;  127			level[width * 24 + i + 192] = hill3[i];
+;  128			level[width * 24 + i + 288] = hill3[i];
+;  129			level[width * 24 + i + 384] = hill3[i];
+;  130		}
+;  131		for(i = 0; i < 10; i++) {
+;  132			level[width * 25 + i] = hill4[i];
+;  133			level[width * 25 + i + 96] = hill4[i];
+;  134			level[width * 25 + i + 192] = hill4[i];
+;  135			level[width * 25 + i + 288] = hill4[i];
+;  136			level[width * 25 + i + 384] = hill4[i];
+;  137		}*/
+;  138	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _oneone ***************************
+;Name                         Addr/Register   Size   Type
+;_newBlock                           IMPORT  -----   function
+;_blocks                             STATIC      2   variable
+;_level                              STATIC   2400   variable
+;_my                                 STATIC      4   variable
+;_mx                                 STATIC      4   variable
+;_height                             STATIC      2   variable
+;_width                              STATIC      2   variable
+;_18temp18                           STATIC      4   variable
+;_17temp17                           STATIC      6   variable
+;_16temp16                           STATIC      6   variable
+;_15temp15                           STATIC      8   variable
+;_14temp14                           STATIC      8   variable
+;_13temp13                           STATIC      4   variable
+;_12temp12                           STATIC      4   variable
+;_11temp11                           STATIC      4   variable
+;_10temp10                           STATIC     10   variable
+;_9temp9                             STATIC     10   variable
+;_8temp8                             STATIC     10   variable
+;_7temp7                             STATIC     10   variable
+;_6temp6                             STATIC     10   variable
+;_5temp5                             STATIC      6   variable
+;_4temp4                             STATIC      6   variable
+;_3temp3                             STATIC      4   variable
+;_2temp2                             STATIC      4   variable
+;_1temp1                             STATIC      8   variable
+;_0temp0                             STATIC      8   variable
+;hill0                               IX-132     10   variable
+;hill4                               IX-122     10   variable
+;hill3                               IX-112     10   variable
+;hill2                               IX-102     10   variable
+;hill1                                IX-92     10   variable
+;bush0                                IX-82      8   variable
+;bush1                                IX-74      8   variable
+;cloud4                               IX-66      8   variable
+;cloud3                               IX-58      8   variable
+;cloud7                               IX-50      6   variable
+;cloud6                               IX-44      6   variable
+;bush4                                IX-38      6   variable
+;bush5                                IX-32      6   variable
+;cloud1                               IX-26      4   variable
+;cloud0                               IX-22      4   variable
+;bush3                                IX-18      4   variable
+;bush2                                IX-14      4   variable
+;cloud2                               IX-10      4   variable
+;ground                                IX-6      4   variable
+;i                                     IX-2      2   variable
+
+
+; Stack Frame Size: 144 (bytes)
+;       Spill Code: -4 (instruction)
+
+
+	SEGMENT TEXT
+_0temp0:
+	DB	36
+	DB	54
+	DB	55
+	DB	54
+	DB	55
+	DB	54
+	DB	55
+	DB	36
+_1temp1:
+	DB	53
+	DB	37
+	DB	37
+	DB	37
+	DB	37
+	DB	37
+	DB	37
+	DB	56
+_2temp2:
+	DB	36
+	DB	54
+	DB	55
+	DB	36
+_3temp3:
+	DB	53
+	DB	37
+	DB	37
+	DB	56
+_4temp4:
+	DB	36
+	DB	54
+	DB	55
+	DB	54
+	DB	55
+	DB	36
+_5temp5:
+	DB	53
+	DB	37
+	DB	37
+	DB	37
+	DB	37
+	DB	56
+_6temp6:
+	DB	36
+	DB	36
+	DB	36
+	DB	36
+	DB	49
+	DB	50
+	DB	0
+	DB	0
+	DB	0
+	DB	0
+_7temp7:
+	DB	36
+	DB	36
+	DB	36
+	DB	48
+	DB	38
+	DB	52
+	DB	51
+	DB	0
+	DB	0
+	DB	0
+_8temp8:
+	DB	36
+	DB	36
+	DB	48
+	DB	38
+	DB	38
+	DB	38
+	DB	38
+	DB	51
+	DB	0
+	DB	0
+_9temp9:
+	DB	36
+	DB	48
+	DB	38
+	DB	52
+	DB	38
+	DB	38
+	DB	52
+	DB	38
+	DB	51
+	DB	0
+_10temp10:
+	DB	48
+	DB	38
+	DB	38
+	DB	38
+	DB	38
+	DB	38
+	DB	38
+	DB	38
+	DB	38
+	DB	51
+_11temp11:
+	DB	36
+	DB	54
+	DB	55
+	DB	36
+_12temp12:
+	DB	53
+	DB	37
+	DB	37
+	DB	56
+_13temp13:
+	DB	53
+	DB	37
+	DB	37
+	DB	56
+_14temp14:
+	DB	36
+	DB	54
+	DB	55
+	DB	54
+	DB	55
+	DB	54
+	DB	55
+	DB	36
+_15temp15:
+	DB	53
+	DB	37
+	DB	37
+	DB	37
+	DB	37
+	DB	37
+	DB	37
+	DB	56
+_16temp16:
+	DB	36
+	DB	54
+	DB	55
+	DB	54
+	DB	55
+	DB	36
+_17temp17:
+	DB	53
+	DB	37
+	DB	37
+	DB	37
+	DB	37
+	DB	56
+_18temp18:
+	DB	180
+	DB	181
+	DB	182
+	DB	183
+	SEGMENT CODE
+;  139	
+;  140	void newBlock(uint16_t bx, uint16_t by, uint16_t i) {
+_newBlock:
+	CALL	__frameset0
+;  141		xBlocks[i] = bx;
+	LD	BC,(IX+12)
+	CALL	__stoiu
+	ADD	HL,HL
+	LD	BC,HL
+	LD	HL,BC
+	LD	DE,_xBlocks
+	ADD	HL,DE
+	LD	A,(IX+6)
+	LD	(HL),A
+	INC	HL
+	LD	A,(IX+7)
+	LD	(HL),A
+;  142		yBlocks[i] = by;
+	LD	HL,BC
+	LD	BC,_yBlocks
+	ADD	HL,BC
+	LD	A,(IX+9)
+	LD	(HL),A
+	INC	HL
+	LD	A,(IX+10)
+	LD	(HL),A
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _newBlock ***************************
+;Name                         Addr/Register   Size   Type
+;_yBlocks                            STATIC    160   variable
+;_xBlocks                            STATIC    160   variable
+;i                                    IX+12      2   parameter
+;by                                    IX+9      2   parameter
+;bx                                    IX+6      2   parameter
+
+
+; Stack Frame Size: 15 (bytes)
+;       Spill Code: -4 (instruction)
+
+
+	XREF __irems:ROM
+	XREF __stoiu:ROM
+	XREF __frameset0:ROM
+	XREF __frameset:ROM
+	XDEF _newBlock
+	XDEF _oneone
+	XDEF _yBlocks
+	XDEF _xBlocks
+	XDEF _blocks
+	XDEF _level
+	XDEF _tilemap
+	XDEF _my
+	XDEF _mx
+	XDEF _x
+	XDEF _height
+	XDEF _width
+	END

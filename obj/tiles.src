@@ -1,0 +1,6803 @@
+; Zilog eZ80 ANSI C Compiler Release 3.4
+; -nomodsect -optspeed -noreduceopt -peephole -globalopt
+; -localcse -const=ROM 
+	FILE	"..\..\..\CE-PRO~1\MARIO\SRC\TILES.C"
+	.assume ADL=1
+	SEGMENT BSS
+_testTiles:
+	DS	16896
+_tiles:
+	DS	768
+;    1	#include <stdint.h>
+;    2	
+;    3	#include "tiles.h"
+;    4	
+;    5	//uint8_t bg[256][66];
+;    6	uint8_t testTiles[256][66];
+;    7	uint8_t* tiles[256];
+	SEGMENT CODE
+;    8	
+;    9	void copyTiles() {
+_copyTiles:
+	LD	HL,-3707
+	CALL	__frameset
+;   10		uint8_t tile00[66] = { // 0
+;   11			8, 8,
+;   12			0x40, 0x40, 0x30, 0x30, 0x30, 0x40, 0x40, 0x40,
+;   13			0x40, 0x30, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40,
+;   14			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;   15			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;   16			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;   17			0x40, 0x30, 0x30, 0x40, 0x40, 0x30, 0x40, 0x40,
+;   18			0x40, 0x40, 0x30, 0x30, 0x30, 0x40, 0x40, 0x40,
+;   19			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;   20		};
+	LD	HL,IX
+	LD	BC,-3698
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_0temp0
+	LD	BC,66
+	LDIR	
+;   21		uint8_t tile01[66] = { // 1
+;   22			8, 8,
+;   23			0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40,
+;   24			0x40, 0x40, 0x30, 0x30, 0x30, 0x40, 0x40, 0x40,
+;   25			0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40,
+;   26			0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40,
+;   27			0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40,
+;   28			0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40,
+;   29			0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40,
+;   30			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;   31		};
+	LEA	DE,IX+-68
+	LD	HL,_1temp1
+	LD	BC,66
+	LDIR	
+;   32		uint8_t tile02[66] = { // 2
+;   33			8, 8,
+;   34			0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;   35			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;   36			0x40, 0x40, 0x40, 0x40, 0x30, 0x30, 0x30, 0x40,
+;   37			0x40, 0x40, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;   38			0x40, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40, 0x40,
+;   39			0x30, 0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x40,
+;   40			0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40,
+;   41			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;   42		};
+	LD	HL,IX
+	LD	BC,-134
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_2temp2
+	LD	BC,66
+	LDIR	
+;   43		uint8_t tile03[66] = { // 3
+;   44			8, 8,
+;   45			0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40,
+;   46			0x40, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40,
+;   47			0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40,
+;   48			0x40, 0x40, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;   49			0x40, 0x40, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;   50			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;   51			0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;   52			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;   53		};
+	LD	HL,IX
+	LD	BC,-200
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_3temp3
+	LD	BC,66
+	LDIR	
+;   54		uint8_t tile04[66] = { // 4
+;   55			8, 8,
+;   56			0x40, 0x40, 0x40, 0x30, 0x30, 0x30, 0x40, 0x40,
+;   57			0x40, 0x40, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;   58			0x40, 0x30, 0x30, 0x40, 0x30, 0x30, 0x40, 0x40,
+;   59			0x30, 0x30, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40,
+;   60			0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40,
+;   61			0x40, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40,
+;   62			0x40, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40,
+;   63			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;   64		};
+	LD	HL,IX
+	LD	BC,-266
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_4temp4
+	LD	BC,66
+	LDIR	
+;   65		uint8_t tile05[66] = { // 5
+;   66			8, 8,
+;   67			0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;   68			0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;   69			0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;   70			0x40, 0x40, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;   71			0x40, 0x40, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;   72			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;   73			0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;   74			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;   75		};
+	LD	HL,IX
+	LD	BC,-332
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_5temp5
+	LD	BC,66
+	LDIR	
+;   76		uint8_t tile06[66] = { // 6
+;   77			8, 8,
+;   78			0x40, 0x40, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;   79			0x40, 0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x40,
+;   80			0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;   81			0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;   82			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;   83			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;   84			0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;   85			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;   86		};
+	LD	HL,IX
+	LD	BC,-398
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_6temp6
+	LD	BC,66
+	LDIR	
+;   87		uint8_t tile07[66] = { // 7
+;   88			8, 8,
+;   89			0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40,
+;   90			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;   91			0x40, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40,
+;   92			0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40,
+;   93			0x40, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40, 0x40,
+;   94			0x40, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40, 0x40,
+;   95			0x40, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40, 0x40,
+;   96			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;   97		};
+	LD	HL,IX
+	LD	BC,-464
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_7temp7
+	LD	BC,66
+	LDIR	
+;   98		uint8_t tile08[66] = { // 8
+;   99			8, 8,
+;  100			0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  101			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  102			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  103			0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  104			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  105			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  106			0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  107			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  108		};
+	LD	HL,IX
+	LD	BC,-530
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_8temp8
+	LD	BC,66
+	LDIR	
+;  109		uint8_t tile09[66] = { // 9
+;  110			8, 8,
+;  111			0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  112			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  113			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  114			0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40,
+;  115			0x40, 0x40, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  116			0x40, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40,
+;  117			0x40, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  118			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  119		};
+	LD	HL,IX
+	LD	BC,-596
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_9temp9
+	LD	BC,66
+	LDIR	
+;  120		uint8_t tile0a[66] = { // a
+;  121			8, 8,
+;  122			0x40, 0x40, 0x30, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  123			0x40, 0x30, 0x30, 0x40, 0x30, 0x30, 0x40, 0x40,
+;  124			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  125			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  126			0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40,
+;  127			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  128			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  129			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  130		};
+	LD	HL,IX
+	LD	BC,-662
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_10temp10
+	LD	BC,66
+	LDIR	
+;  131		uint8_t tile0b[66] = { // b
+;  132			8, 8,
+;  133			0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  134			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  135			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  136			0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  137			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  138			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  139			0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  140			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  141		};
+	LD	HL,IX
+	LD	BC,-728
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_11temp11
+	LD	BC,66
+	LDIR	
+;  142		uint8_t tile0c[66] = { // c
+;  143			8, 8,
+;  144			0x40, 0x40, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  145			0x40, 0x30, 0x30, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  146			0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  147			0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  148			0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  149			0x40, 0x30, 0x30, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  150			0x40, 0x40, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  151			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  152		};
+	LD	HL,IX
+	LD	BC,-794
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_12temp12
+	LD	BC,66
+	LDIR	
+;  153		uint8_t tile0d[66] = { // d
+;  154			8, 8,
+;  155			0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  156			0x30, 0x30, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40,
+;  157			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  158			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  159			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  160			0x30, 0x30, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40,
+;  161			0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  162			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  163		};
+	LD	HL,IX
+	LD	BC,-860
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_13temp13
+	LD	BC,66
+	LDIR	
+;  164		uint8_t tile0e[66] = { // e
+;  165			8, 8,
+;  166			0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40,
+;  167			0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  168			0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  169			0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  170			0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  171			0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  172			0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40,
+;  173			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  174		};
+	LD	HL,IX
+	LD	BC,-926
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_14temp14
+	LD	BC,66
+	LDIR	
+;  175		uint8_t tile0f[66] = { // f
+;  176			8, 8,
+;  177			0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40,
+;  178			0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  179			0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  180			0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  181			0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  182			0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  183			0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  184			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  185		};
+	LD	HL,IX
+	LD	BC,-992
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_15temp15
+	LD	BC,66
+	LDIR	
+;  186		uint8_t tile10[66] = { // g
+;  187			8, 8,
+;  188			0x40, 0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40,
+;  189			0x40, 0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  190			0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  191			0x30, 0x30, 0x40, 0x40, 0x30, 0x30, 0x30, 0x40,
+;  192			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  193			0x40, 0x30, 0x30, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  194			0x40, 0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40,
+;  195			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  196		};
+	LD	HL,IX
+	LD	BC,-1058
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_16temp16
+	LD	BC,66
+	LDIR	
+;  197		uint8_t tile11[66] = { // h
+;  198			8, 8,
+;  199			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  200			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  201			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  202			0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40,
+;  203			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  204			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  205			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  206			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  207		};
+	LD	HL,IX
+	LD	BC,-1124
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_17temp17
+	LD	BC,66
+	LDIR	
+;  208		uint8_t tile12[66] = { // i
+;  209			8, 8,
+;  210			0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40,
+;  211			0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  212			0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  213			0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  214			0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  215			0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  216			0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40,
+;  217			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  218		};
+	LD	HL,IX
+	LD	BC,-1190
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_18temp18
+	LD	BC,66
+	LDIR	
+;  219		uint8_t tile13[66] = { // j
+;  220			8, 8,
+;  221			0x40, 0x40, 0x40, 0x30, 0x30, 0x30, 0x30, 0x40,
+;  222			0x40, 0x40, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  223			0x40, 0x40, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  224			0x40, 0x40, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  225			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  226			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  227			0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  228			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  229		};
+	LD	HL,IX
+	LD	BC,-1256
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_19temp19
+	LD	BC,66
+	LDIR	
+;  230		uint8_t tile14[66] = { // k
+;  231			8, 8,
+;  232			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  233			0x30, 0x30, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40,
+;  234			0x30, 0x30, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  235			0x30, 0x30, 0x30, 0x30, 0x40, 0x40, 0x40, 0x40,
+;  236			0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  237			0x30, 0x30, 0x40, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  238			0x30, 0x30, 0x40, 0x40, 0x30, 0x30, 0x30, 0x40,
+;  239			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  240		};
+	LD	HL,IX
+	LD	BC,-1322
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_20temp20
+	LD	BC,66
+	LDIR	
+;  241		uint8_t tile15[66] = { // l
+;  242			8, 8,
+;  243			0x40, 0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  244			0x40, 0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  245			0x40, 0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  246			0x40, 0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  247			0x40, 0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  248			0x40, 0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  249			0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40,
+;  250			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  251		};
+	LD	HL,IX
+	LD	BC,-1388
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_21temp21
+	LD	BC,66
+	LDIR	
+;  252		uint8_t tile16[66] = { // m
+;  253			8, 8,
+;  254			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  255			0x30, 0x30, 0x30, 0x40, 0x30, 0x30, 0x30, 0x40,
+;  256			0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40,
+;  257			0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40,
+;  258			0x30, 0x30, 0x40, 0x30, 0x40, 0x30, 0x30, 0x40,
+;  259			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  260			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  261			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  262		};
+	LD	HL,IX
+	LD	BC,-1454
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_22temp22
+	LD	BC,66
+	LDIR	
+;  263		uint8_t tile17[66] = { // n
+;  264			8, 8,
+;  265			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  266			0x30, 0x30, 0x30, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  267			0x30, 0x30, 0x30, 0x30, 0x40, 0x30, 0x30, 0x40,
+;  268			0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40,
+;  269			0x30, 0x30, 0x40, 0x30, 0x30, 0x30, 0x30, 0x40,
+;  270			0x30, 0x30, 0x40, 0x40, 0x30, 0x30, 0x30, 0x40,
+;  271			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  272			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  273		};
+	LD	HL,IX
+	LD	BC,-1520
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_23temp23
+	LD	BC,66
+	LDIR	
+;  274		uint8_t tile18[66] = { // o
+;  275			8, 8,
+;  276			0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  277			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  278			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  279			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  280			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  281			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  282			0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  283			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  284		};
+	LD	HL,IX
+	LD	BC,-1586
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_24temp24
+	LD	BC,66
+	LDIR	
+;  285		uint8_t tile19[66] = { // p
+;  286			8, 8,
+;  287			0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  288			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  289			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  290			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  291			0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  292			0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  293			0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  294			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  295		};
+	LD	HL,IX
+	LD	BC,-1652
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_25temp25
+	LD	BC,66
+	LDIR	
+;  296		uint8_t tile1a[66] = { // q
+;  297			8, 8,
+;  298			0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  299			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  300			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  301			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  302			0x30, 0x30, 0x40, 0x30, 0x30, 0x30, 0x30, 0x40,
+;  303			0x30, 0x30, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40,
+;  304			0x40, 0x30, 0x30, 0x30, 0x30, 0x40, 0x30, 0x40,
+;  305			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  306		};
+	LD	HL,IX
+	LD	BC,-1718
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_26temp26
+	LD	BC,66
+	LDIR	
+;  307		uint8_t tile1b[66] = { // r
+;  308			8, 8,
+;  309			0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  310			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  311			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  312			0x30, 0x30, 0x40, 0x40, 0x30, 0x30, 0x30, 0x40,
+;  313			0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  314			0x30, 0x30, 0x40, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  315			0x30, 0x30, 0x40, 0x40, 0x30, 0x30, 0x30, 0x40,
+;  316			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  317		};
+	LD	HL,IX
+	LD	BC,-1784
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_27temp27
+	LD	BC,66
+	LDIR	
+;  318		uint8_t tile1c[66] = { // s
+;  319			8, 8,
+;  320			0x40, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  321			0x30, 0x30, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40,
+;  322			0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  323			0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  324			0x40, 0x40, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  325			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  326			0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  327			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  328		};
+	LD	HL,IX
+	LD	BC,-1850
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_28temp28
+	LD	BC,66
+	LDIR	
+;  329		uint8_t tile1d[66] = { // t
+;  330			8, 8,
+;  331			0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40,
+;  332			0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  333			0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  334			0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  335			0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  336			0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  337			0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  338			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  339		};
+	LD	HL,IX
+	LD	BC,-1916
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_29temp29
+	LD	BC,66
+	LDIR	
+;  340		uint8_t tile1e[66] = { // u
+;  341			8, 8,
+;  342			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  343			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  344			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  345			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  346			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  347			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  348			0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  349			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  350		};
+	LD	HL,IX
+	LD	BC,-1982
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_30temp30
+	LD	BC,66
+	LDIR	
+;  351		uint8_t tile1f[66] = { // v
+;  352			8, 8,
+;  353			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  354			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  355			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  356			0x30, 0x30, 0x30, 0x40, 0x30, 0x30, 0x30, 0x40,
+;  357			0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  358			0x40, 0x40, 0x30, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  359			0x40, 0x40, 0x40, 0x30, 0x40, 0x40, 0x40, 0x40,
+;  360			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  361		};
+	LD	HL,IX
+	LD	BC,-2048
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_31temp31
+	LD	BC,66
+	LDIR	
+;  362		uint8_t tile20[66] = { // w
+;  363			8, 8,
+;  364			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  365			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  366			0x30, 0x30, 0x40, 0x30, 0x40, 0x30, 0x30, 0x40,
+;  367			0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40,
+;  368			0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40,
+;  369			0x30, 0x30, 0x30, 0x40, 0x30, 0x30, 0x30, 0x40,
+;  370			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  371			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  372		};
+	LD	HL,IX
+	LD	BC,-2114
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_32temp32
+	LD	BC,66
+	LDIR	
+;  373		uint8_t tile21[66] = { // x
+;  374			8, 8,
+;  375			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  376			0x30, 0x30, 0x30, 0x40, 0x30, 0x30, 0x30, 0x40,
+;  377			0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  378			0x40, 0x40, 0x30, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  379			0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  380			0x30, 0x30, 0x30, 0x40, 0x30, 0x30, 0x30, 0x40,
+;  381			0x30, 0x30, 0x40, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  382			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  383		};
+	LD	HL,IX
+	LD	BC,-2180
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_33temp33
+	LD	BC,66
+	LDIR	
+;  384		uint8_t tile22[66] = { // y
+;  385			8, 8,
+;  386			0x40, 0x30, 0x30, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  387			0x40, 0x30, 0x30, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  388			0x40, 0x30, 0x30, 0x40, 0x40, 0x30, 0x30, 0x40,
+;  389			0x40, 0x40, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  390			0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  391			0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  392			0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  393			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  394		};
+	LD	HL,IX
+	LD	BC,-2246
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_34temp34
+	LD	BC,66
+	LDIR	
+;  395		uint8_t tile23[66] = { // z
+;  396			8, 8,
+;  397			0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40,
+;  398			0x40, 0x40, 0x40, 0x40, 0x30, 0x30, 0x30, 0x40,
+;  399			0x40, 0x40, 0x40, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  400			0x40, 0x40, 0x30, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  401			0x40, 0x30, 0x30, 0x30, 0x40, 0x40, 0x40, 0x40,
+;  402			0x30, 0x30, 0x30, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  403			0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40,
+;  404			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  405		};
+	LD	HL,IX
+	LD	BC,-2312
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_35temp35
+	LD	BC,66
+	LDIR	
+;  406		uint8_t tile28[66] = { // -
+;  407			8, 8,
+;  408			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  409			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  410			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  411			0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40,
+;  412			0x40, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x40,
+;  413			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  414			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  415			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  416		};
+	LD	HL,IX
+	LD	BC,-2378
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_36temp36
+	LD	BC,66
+	LDIR	
+;  417		uint8_t tile29[66] = { // *
+;  418			8, 8,
+;  419			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  420			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  421			0x40, 0x30, 0x40, 0x40, 0x40, 0x30, 0x40, 0x40,
+;  422			0x40, 0x40, 0x30, 0x40, 0x30, 0x40, 0x40, 0x40,
+;  423			0x40, 0x40, 0x40, 0x30, 0x40, 0x40, 0x40, 0x40,
+;  424			0x40, 0x40, 0x30, 0x40, 0x30, 0x40, 0x40, 0x40,
+;  425			0x40, 0x30, 0x40, 0x40, 0x40, 0x30, 0x40, 0x40,
+;  426			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  427		};
+	LD	HL,IX
+	LD	BC,-2444
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_37temp37
+	LD	BC,66
+	LDIR	
+;  428		uint8_t tile2b[66] = { // !
+;  429			8, 8,
+;  430			0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  431			0x40, 0x40, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  432			0x40, 0x40, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  433			0x40, 0x40, 0x30, 0x30, 0x30, 0x30, 0x40, 0x40,
+;  434			0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  435			0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  436			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  437			0x40, 0x40, 0x40, 0x30, 0x30, 0x40, 0x40, 0x40,
+;  438		};
+	LD	HL,IX
+	LD	BC,-2510
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_38temp38
+	LD	BC,66
+	LDIR	
+;  439		
+;  440		uint8_t tile27[66] = {
+;  441			8, 8,
+;  442			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  443			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  444			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  445			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  446			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  447			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  448			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  449			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  450		};
+	LD	HL,IX
+	LD	BC,-2576
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_39temp39
+	LD	BC,66
+	LDIR	
+;  451		
+;  452		uint8_t tile24[66] = {
+;  453			8, 8,
+;  454			0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22,
+;  455			0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22,
+;  456			0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22,
+;  457			0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22,
+;  458			0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22,
+;  459			0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22,
+;  460			0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22,
+;  461			0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22,
+;  462		};
+	LD	HL,IX
+	LD	BC,-2642
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_40temp40
+	LD	BC,66
+	LDIR	
+;  463		uint8_t tile25[66] = {
+;  464			8,8,
+;  465			0x29, 0x29, 0x29, 0x29, 0x29, 0x29, 0x29, 0x29,
+;  466			0x29, 0x29, 0x29, 0x29, 0x29, 0x29, 0x29, 0x29,
+;  467			0x29, 0x29, 0x29, 0x29, 0x29, 0x29, 0x29, 0x29,
+;  468			0x29, 0x29, 0x29, 0x29, 0x29, 0x29, 0x29, 0x29,
+;  469			0x29, 0x29, 0x29, 0x29, 0x29, 0x29, 0x29, 0x29,
+;  470			0x29, 0x29, 0x29, 0x29, 0x29, 0x29, 0x29, 0x29,
+;  471			0x29, 0x29, 0x29, 0x29, 0x29, 0x29, 0x29, 0x29,
+;  472			0x29, 0x29, 0x29, 0x29, 0x29, 0x29, 0x29, 0x29,
+;  473		};
+	LD	HL,IX
+	LD	BC,-2708
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_41temp41
+	LD	BC,66
+	LDIR	
+;  474		uint8_t tile26[66] = {
+;  475			8,8,
+;  476			0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a,
+;  477			0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a,
+;  478			0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a,
+;  479			0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a,
+;  480			0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a,
+;  481			0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a,
+;  482			0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a,
+;  483			0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a,
+;  484		};
+	LD	HL,IX
+	LD	BC,-2774
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_42temp42
+	LD	BC,66
+	LDIR	
+;  485		uint8_t tile30[66] = {
+;  486			8,8,
+;  487			0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x0f,
+;  488			0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x0f, 0x1a,
+;  489			0x22, 0x22, 0x22, 0x22, 0x22, 0x0f, 0x1a, 0x1a,
+;  490			0x22, 0x22, 0x22, 0x22, 0x0f, 0x1a, 0x1a, 0x1a,
+;  491			0x22, 0x22, 0x22, 0x0f, 0x1a, 0x1a, 0x1a, 0x1a,
+;  492			0x22, 0x22, 0x0f, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a,
+;  493			0x22, 0x0f, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a,
+;  494			0x0f, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a,
+;  495		};
+	LD	HL,IX
+	LD	BC,-2840
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_43temp43
+	LD	BC,66
+	LDIR	
+;  496		uint8_t tile31[66] = {
+;  497			8,8,
+;  498			0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22,
+;  499			0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22,
+;  500			0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22,
+;  501			0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22,
+;  502			0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22,
+;  503			0x22, 0x22, 0x22, 0x22, 0x22, 0x0f, 0x0f, 0x0f,
+;  504			0x22, 0x22, 0x0f, 0x0f, 0x0f, 0x1a, 0x1a, 0x1a,
+;  505			0x0f, 0x0f, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a,
+;  506		};
+	LD	HL,IX
+	LD	BC,-2906
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_44temp44
+	LD	BC,66
+	LDIR	
+;  507		uint8_t tile32[66] = {
+;  508			8,8,
+;  509			0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22,
+;  510			0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22,
+;  511			0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22,
+;  512			0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22,
+;  513			0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22,
+;  514			0x0f, 0x0f, 0x0f, 0x22, 0x22, 0x22, 0x22, 0x22,
+;  515			0x1a, 0x1a, 0x1a, 0x0f, 0x0f, 0x0f, 0x22, 0x22,
+;  516			0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x0f, 0x0f,
+;  517		};
+	LD	HL,IX
+	LD	BC,-2972
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_45temp45
+	LD	BC,66
+	LDIR	
+;  518		uint8_t tile33[66] = {
+;  519			8,8,
+;  520			0x0f, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22,
+;  521			0x1a, 0x0f, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22,
+;  522			0x1a, 0x1a, 0x0f, 0x22, 0x22, 0x22, 0x22, 0x22,
+;  523			0x1a, 0x1a, 0x1a, 0x0f, 0x22, 0x22, 0x22, 0x22,
+;  524			0x1a, 0x1a, 0x1a, 0x1a, 0x0f, 0x22, 0x22, 0x22,
+;  525			0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x0f, 0x22, 0x22,
+;  526			0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x0f, 0x22,
+;  527			0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x0f,
+;  528		};
+	LD	HL,IX
+	LD	BC,-3038
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_46temp46
+	LD	BC,66
+	LDIR	
+;  529		uint8_t tile34[66] = {
+;  530			8,8,
+;  531			0x1a, 0x1a, 0x1a, 0x1a, 0x1a, 0x0f, 0x1a, 0x1a,
+;  532			0x1a, 0x1a, 0x1a, 0x1a, 0x0f, 0x0f, 0x0f, 0x1a,
+;  533			0x1a, 0x1a, 0x1a, 0x1a, 0x0f, 0x0f, 0x0f, 0x1a,
+;  534			0x1a, 0x1a, 0x1a, 0x1a, 0x0f, 0x0f, 0x0f, 0x1a,
+;  535			0x1a, 0x0f, 0x0f, 0x1a, 0x0f, 0x0f, 0x0f, 0x1a,
+;  536			0x1a, 0x0f, 0x0f, 0x1a, 0x1a, 0x0f, 0x1a, 0x1a,
+;  537			0x1a, 0x0f, 0x0f, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a,
+;  538			0x1a, 0x0f, 0x0f, 0x1a, 0x1a, 0x1a, 0x1a, 0x1a,
+;  539		};
+	LD	HL,IX
+	LD	BC,-3104
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_47temp47
+	LD	BC,66
+	LDIR	
+;  540		uint8_t tile35[66] = {
+;  541			8,8,
+;  542			0x22, 0x22, 0x22, 0x22, 0x22, 0x0f, 0x0f, 0x0f,
+;  543			0x22, 0x22, 0x22, 0x22, 0x0f, 0x29, 0x29, 0x29,
+;  544			0x22, 0x22, 0x22, 0x0f, 0x29, 0x29, 0x29, 0x29,
+;  545			0x22, 0x22, 0x22, 0x29, 0x29, 0x29, 0x29, 0x29,
+;  546			0x22, 0x0f, 0x0f, 0x29, 0x29, 0x29, 0x29, 0x29,
+;  547			0x0f, 0x29, 0x29, 0x29, 0x29, 0x29, 0x29, 0x29,
+;  548			0x0f, 0x29, 0x29, 0x29, 0x29, 0x29, 0x29, 0x29,
+;  549			0x22, 0x0f, 0x29, 0x29, 0x29, 0x29, 0x29, 0x29,
+;  550		};
+	LD	HL,IX
+	LD	BC,-3170
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_48temp48
+	LD	BC,66
+	LDIR	
+;  551		uint8_t tile36[66] = {
+;  552			8,8,
+;  553			0x22, 0x22, 0x22, 0x22, 0x22, 0x22, 0x0f, 0x0f,
+;  554			0x22, 0x22, 0x22, 0x22, 0x22, 0x0f, 0x29, 0x29,
+;  555			0x22, 0x22, 0x22, 0x0f, 0x0f, 0x29, 0x29, 0x29,
+;  556			0x22, 0x22, 0x0f, 0x29, 0x29, 0x29, 0x29, 0x29,
+;  557			0x22, 0x22, 0x0f, 0x29, 0x29, 0x29, 0x29, 0x29,
+;  558			0x22, 0x22, 0x0f, 0x29, 0x29, 0x29, 0x29, 0x29,
+;  559			0x22, 0x0f, 0x29, 0x29, 0x29, 0x1a, 0x1a, 0x29,
+;  560			0x0f, 0x29, 0x29, 0x29, 0x1a, 0x29, 0x29, 0x29,
+;  561		};
+	LD	HL,IX
+	LD	BC,-3236
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_49temp49
+	LD	BC,66
+	LDIR	
+;  562		uint8_t tile37[66] = {
+;  563			8,8,
+;  564			0x0f, 0x0f, 0x22, 0x22, 0x22, 0x22, 0x22, 0x22,
+;  565			0x29, 0x29, 0x0f, 0x22, 0x22, 0x22, 0x22, 0x22,
+;  566			0x29, 0x29, 0x29, 0x0f, 0x22, 0x22, 0x22, 0x22,
+;  567			0x29, 0x29, 0x29, 0x0f, 0x22, 0x0f, 0x22, 0x22,
+;  568			0x29, 0x29, 0x29, 0x29, 0x0f, 0x29, 0x0f, 0x22,
+;  569			0x29, 0x1a, 0x29, 0x29, 0x29, 0x29, 0x29, 0x0f,
+;  570			0x29, 0x29, 0x1a, 0x29, 0x29, 0x29, 0x29, 0x0f,
+;  571			0x29, 0x29, 0x29, 0x29, 0x29, 0x29, 0x29, 0x0f,
+;  572		};
+	LD	HL,IX
+	LD	BC,-3302
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_50temp50
+	LD	BC,66
+	LDIR	
+;  573		uint8_t tile38[66] = {
+;  574			8,8,
+;  575			0x0f, 0x22, 0x22, 0x0f, 0x22, 0x22, 0x22, 0x22,
+;  576			0x0f, 0x22, 0x0f, 0x22, 0x0f, 0x22, 0x22, 0x22,
+;  577			0x29, 0x0f, 0x29, 0x29, 0x0f, 0x22, 0x22, 0x22,
+;  578			0x29, 0x29, 0x29, 0x29, 0x0f, 0x22, 0x0f, 0x22,
+;  579			0x29, 0x29, 0x29, 0x29, 0x29, 0x0f, 0x29, 0x0f,
+;  580			0x29, 0x29, 0x29, 0x29, 0x29, 0x29, 0x29, 0x0f,
+;  581			0x29, 0x29, 0x29, 0x29, 0x29, 0x29, 0x29, 0x0f,
+;  582			0x29, 0x29, 0x29, 0x29, 0x29, 0x29, 0x0f, 0x22,
+;  583		};
+	LD	HL,IX
+	LD	BC,-3368
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_51temp51
+	LD	BC,66
+	LDIR	
+;  584		uint8_t tileb4[66] = {
+;  585			8, 8,
+;  586			0x17, 0x36, 0x36, 0x36, 0x36, 0x36, 0x36, 0x36,
+;  587			0x36, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17,
+;  588			0x36, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17,
+;  589			0x36, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17,
+;  590			0x36, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17,
+;  591			0x36, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17,
+;  592			0x36, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17,
+;  593			0x36, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17,
+;  594		};
+	LD	HL,IX
+	LD	BC,-3434
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_52temp52
+	LD	BC,66
+	LDIR	
+;  595		uint8_t tileb5[66] = {
+;  596			8, 8,
+;  597			0x36, 0x0f, 0x17, 0x36, 0x36, 0x36, 0x36, 0x17,
+;  598			0x17, 0x0f, 0x36, 0x17, 0x17, 0x17, 0x17, 0x0f,
+;  599			0x17, 0x0f, 0x36, 0x17, 0x17, 0x17, 0x17, 0x0f,
+;  600			0x17, 0x0f, 0x36, 0x17, 0x17, 0x17, 0x17, 0x0f,
+;  601			0x17, 0x0f, 0x36, 0x0f, 0x17, 0x17, 0x17, 0x0f,
+;  602			0x17, 0x0f, 0x17, 0x0f, 0x0f, 0x0f, 0x0f, 0x17,
+;  603			0x17, 0x0f, 0x36, 0x36, 0x36, 0x36, 0x36, 0x0f,
+;  604			0x17, 0x0f, 0x36, 0x17, 0x17, 0x17, 0x17, 0x0f,
+;  605		};
+	LD	HL,IX
+	LD	BC,-3500
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_53temp53
+	LD	BC,66
+	LDIR	
+;  606		uint8_t tileb6[66] = {
+;  607			8, 8,
+;  608			0x36, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17,
+;  609			0x36, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17,
+;  610			0x0f, 0x0f, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17,
+;  611			0x36, 0x36, 0x0f, 0x0f, 0x17, 0x17, 0x17, 0x17,
+;  612			0x36, 0x17, 0x36, 0x36, 0x0f, 0x0f, 0x0f, 0x0f,
+;  613			0x36, 0x17, 0x17, 0x17, 0x36, 0x36, 0x36, 0x0f,
+;  614			0x36, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x0f,
+;  615			0x17, 0x0f, 0x0f, 0x0f, 0x0f, 0x0f, 0x0f, 0x17,
+;  616		};
+	LD	HL,IX
+	LD	BC,-3566
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_54temp54
+	LD	BC,66
+	LDIR	
+;  617		uint8_t tileb7[66] = {
+;  618			8, 8,
+;  619			0x17, 0x0f, 0x36, 0x17, 0x17, 0x17, 0x17, 0x0f,
+;  620			0x17, 0x0f, 0x36, 0x17, 0x17, 0x17, 0x17, 0x0f,
+;  621			0x0f, 0x36, 0x17, 0x17, 0x17, 0x17, 0x17, 0x0f,
+;  622			0x0f, 0x36, 0x17, 0x17, 0x17, 0x17, 0x17, 0x0f,
+;  623			0x36, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x0f,
+;  624			0x36, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x0f,
+;  625			0x36, 0x17, 0x17, 0x17, 0x17, 0x17, 0x0f, 0x0f,
+;  626			0x36, 0x0f, 0x0f, 0x0f, 0x0f, 0x0f, 0x0f, 0x17,
+;  627		};
+	LD	HL,IX
+	LD	BC,-3632
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_55temp55
+	LD	BC,66
+	LDIR	
+;  628		
+;  629		uint16_t i;
+;  630		
+;  631		// DONT'T ASSIGN ANYTHING TO 0x00 OR NULL WILL SHOW UP AS THAT TILE
+;  632		for(i = 0; i < 66; i++) {testTiles[0x01][i] = tile00[i];} // 0
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_59
+L_57:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,(IX+-2)
+	PUSH	BC
+	PUSH	HL
+	LD	HL,BC
+	LD	BC,-3701	; spill
+	CALL	__istix
+	POP	HL
+	POP	BC
+	LD	BC,-3698
+	PUSH	BC
+	PUSH	HL
+	LD	HL,BC	; unspill
+	LD	BC,-3707	; spill
+	CALL	__istix
+	POP	HL
+	POP	BC
+	LD	BC,-3701	; unspill
+	PUSH	HL
+	CALL	__ildix
+	LD	BC,HL
+	POP	HL
+	PUSH	BC
+	PUSH	HL
+	LD	HL,BC
+	LD	BC,-3701	; spill
+	CALL	__istix
+	POP	HL
+	POP	BC
+	LD	BC,-3707	; unspill
+	PUSH	HL
+	CALL	__ildix
+	LD	BC,HL
+	POP	HL
+	ADD	HL,BC
+	LD	BC,-3701	; unspill
+	PUSH	HL
+	CALL	__ildix
+	LD	BC,HL
+	POP	HL
+	ADD	HL,DE
+	LD	A,(HL)
+	CALL	__stoiu
+	LD	BC,_testTiles+66
+	ADD	HL,BC
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_59:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_57
+;  633		for(i = 0; i < 66; i++) {testTiles[0x02][i] = tile01[i];} // 1
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_63
+L_61:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LEA	HL,IX+-68
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,132
+	ADD	HL,BC
+	LD	DE,HL
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	A,(IY)
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_63:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_61
+;  634		for(i = 0; i < 66; i++) {testTiles[0x03][i] = tile02[i];} // 2
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_68
+L_66:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-134
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,198
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_68:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_66
+;  635		for(i = 0; i < 66; i++) {testTiles[0x04][i] = tile03[i];} // 3
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_73
+L_71:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-200
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,264
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_73:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_71
+;  636		for(i = 0; i < 66; i++) {testTiles[0x05][i] = tile04[i];} // 4
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_78
+L_76:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-266
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,330
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_78:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_76
+;  637		for(i = 0; i < 66; i++) {testTiles[0x06][i] = tile05[i];} // 5
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_83
+L_81:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-332
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,396
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_83:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_81
+;  638		for(i = 0; i < 66; i++) {testTiles[0x07][i] = tile06[i];} // 6
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_88
+L_86:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-398
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,462
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_88:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_86
+;  639		for(i = 0; i < 66; i++) {testTiles[0x08][i] = tile07[i];} // 7
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_93
+L_91:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-464
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,528
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_93:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_91
+;  640		for(i = 0; i < 66; i++) {testTiles[0x09][i] = tile08[i];} // 8
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_98
+L_96:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-530
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,594
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_98:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_96
+;  641		for(i = 0; i < 66; i++) {testTiles[0x0a][i] = tile09[i];} // 9
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_103
+L_101:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-596
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,660
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_103:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_101
+;  642		for(i = 0; i < 66; i++) {testTiles[0x0b][i] = tile0a[i];} // a
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_108
+L_106:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-662
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,726
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_108:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_106
+;  643		for(i = 0; i < 66; i++) {testTiles[0x0c][i] = tile0b[i];} // b
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_113
+L_111:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-728
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,792
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_113:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_111
+;  644		for(i = 0; i < 66; i++) {testTiles[0x0d][i] = tile0c[i];} // c
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_118
+L_116:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-794
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,858
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_118:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_116
+;  645		for(i = 0; i < 66; i++) {testTiles[0x0e][i] = tile0d[i];} // d
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_123
+L_121:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-860
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,924
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_123:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_121
+;  646		for(i = 0; i < 66; i++) {testTiles[0x0f][i] = tile0e[i];} // e
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_128
+L_126:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-926
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,990
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_128:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_126
+;  647		for(i = 0; i < 66; i++) {testTiles[0x10][i] = tile0f[i];} // f
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_133
+L_131:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-992
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,1056
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_133:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_131
+;  648		for(i = 0; i < 66; i++) {testTiles[0x11][i] = tile10[i];} // g
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_138
+L_136:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-1058
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,1122
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_138:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_136
+;  649		for(i = 0; i < 66; i++) {testTiles[0x12][i] = tile11[i];} // h
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_143
+L_141:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-1124
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,1188
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_143:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_141
+;  650		for(i = 0; i < 66; i++) {testTiles[0x13][i] = tile12[i];} // i
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_148
+L_146:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-1190
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,1254
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_148:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_146
+;  651		for(i = 0; i < 66; i++) {testTiles[0x14][i] = tile13[i];} // j
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_153
+L_151:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-1256
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,1320
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_153:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_151
+;  652		for(i = 0; i < 66; i++) {testTiles[0x15][i] = tile14[i];} // k
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_158
+L_156:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-1322
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,1386
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_158:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_156
+;  653		for(i = 0; i < 66; i++) {testTiles[0x16][i] = tile15[i];} // l
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_163
+L_161:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-1388
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,1452
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_163:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_161
+;  654		for(i = 0; i < 66; i++) {testTiles[0x17][i] = tile16[i];} // m
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_168
+L_166:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-1454
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,1518
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_168:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_166
+;  655		for(i = 0; i < 66; i++) {testTiles[0x18][i] = tile17[i];} // n
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_173
+L_171:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-1520
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,1584
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_173:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_171
+;  656		for(i = 0; i < 66; i++) {testTiles[0x19][i] = tile18[i];} // o
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_178
+L_176:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-1586
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,1650
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_178:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_176
+;  657		for(i = 0; i < 66; i++) {testTiles[0x1a][i] = tile19[i];} // p
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_183
+L_181:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-1652
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,1716
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_183:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_181
+;  658		for(i = 0; i < 66; i++) {testTiles[0x1b][i] = tile1a[i];} // q
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_188
+L_186:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-1718
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,1782
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_188:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_186
+;  659		for(i = 0; i < 66; i++) {testTiles[0x1c][i] = tile1b[i];} // r
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_193
+L_191:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-1784
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,1848
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_193:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_191
+;  660		for(i = 0; i < 66; i++) {testTiles[0x1d][i] = tile1c[i];} // s
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_198
+L_196:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-1850
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,1914
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_198:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_196
+;  661		for(i = 0; i < 66; i++) {testTiles[0x1e][i] = tile1d[i];} // t
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_203
+L_201:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-1916
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,1980
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_203:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_201
+;  662		for(i = 0; i < 66; i++) {testTiles[0x1f][i] = tile1e[i];} // u
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_208
+L_206:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-1982
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,2046
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_208:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_206
+;  663		for(i = 0; i < 66; i++) {testTiles[0x20][i] = tile1f[i];} // v
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_213
+L_211:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-2048
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,2112
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_213:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_211
+;  664		for(i = 0; i < 66; i++) {testTiles[0x21][i] = tile20[i];} // w
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_218
+L_216:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-2114
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,2178
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_218:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_216
+;  665		for(i = 0; i < 66; i++) {testTiles[0x22][i] = tile21[i];} // x
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_223
+L_221:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-2180
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,2244
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_223:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_221
+;  666		for(i = 0; i < 66; i++) {testTiles[0x23][i] = tile22[i];} // y
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_228
+L_226:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-2246
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,2310
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_228:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_226
+;  667		for(i = 0; i < 66; i++) {testTiles[0x24][i] = tile23[i];} // z
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_233
+L_231:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-2312
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,2376
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_233:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_231
+;  668		for(i = 0; i < 66; i++) {testTiles[0x29][i] = tile28[i];} // -
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_238
+L_236:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-2378
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,2706
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_238:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_236
+;  669		for(i = 0; i < 66; i++) {testTiles[0x2a][i] = tile29[i];} // *
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_243
+L_241:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-2444
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,2772
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_243:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_241
+;  670		for(i = 0; i < 66; i++) {testTiles[0x2c][i] = tile2b[i];} // !
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_248
+L_246:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-2510
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,2904
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_248:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_246
+;  671		
+;  672		for(i = 0; i < 66; i++) {testTiles[0x27][i] = tile27[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_253
+L_251:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-2576
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,2574
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_253:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_251
+;  673		
+;  674		for(i = 0; i < 66; i++) {testTiles[0x24][i] = tile24[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_258
+L_256:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-2642
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,2376
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_258:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_256
+;  675		for(i = 0; i < 66; i++) {testTiles[0x25][i] = tile25[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_263
+L_261:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-2708
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,2442
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_263:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_261
+;  676		for(i = 0; i < 66; i++) {testTiles[0x26][i] = tile26[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_268
+L_266:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-2774
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,2508
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_268:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_266
+;  677		for(i = 0; i < 66; i++) {testTiles[0x30][i] = tile30[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_273
+L_271:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-2840
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,3168
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_273:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_271
+;  678		for(i = 0; i < 66; i++) {testTiles[0x31][i] = tile31[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_278
+L_276:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-2906
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,3234
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_278:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_276
+;  679		for(i = 0; i < 66; i++) {testTiles[0x32][i] = tile32[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_283
+L_281:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-2972
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,3300
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_283:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_281
+;  680		for(i = 0; i < 66; i++) {testTiles[0x33][i] = tile33[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_288
+L_286:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-3038
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,3366
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_288:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_286
+;  681		for(i = 0; i < 66; i++) {testTiles[0x34][i] = tile34[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_293
+L_291:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-3104
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,3432
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_293:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_291
+;  682		for(i = 0; i < 66; i++) {testTiles[0x35][i] = tile35[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_298
+L_296:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-3170
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,3498
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_298:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_296
+;  683		for(i = 0; i < 66; i++) {testTiles[0x36][i] = tile36[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_303
+L_301:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-3236
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,3564
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_303:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_301
+;  684		for(i = 0; i < 66; i++) {testTiles[0x37][i] = tile37[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_308
+L_306:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-3302
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,3630
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_308:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_306
+;  685		for(i = 0; i < 66; i++) {testTiles[0x38][i] = tile38[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_313
+L_311:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-3368
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,3696
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_313:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_311
+;  686		for(i = 0; i < 66; i++) {testTiles[0xb4][i] = tileb4[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_318
+L_316:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-3434
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,11880
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_318:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_316
+;  687		for(i = 0; i < 66; i++) {testTiles[0xb5][i] = tileb5[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_323
+L_321:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-3500
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,11946
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_323:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_321
+;  688		for(i = 0; i < 66; i++) {testTiles[0xb6][i] = tileb6[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_328
+L_326:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-3566
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,12012
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_328:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_326
+;  689		for(i = 0; i < 66; i++) {testTiles[0xb7][i] = tileb7[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_333
+L_331:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,IX
+	LD	DE,-3632
+	ADD	HL,DE
+	ADD	HL,BC
+	LD	IY,HL
+	LD	HL,_testTiles
+	LD	BC,12078
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_333:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_331
+;  690		
+;  691		for(i = 0; i < 256; i++) {tiles[i] = testTiles[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_338
+L_336:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,_tiles
+	PUSH	BC
+	PUSH	HL
+	LD	HL,BC
+	LD	BC,-3704	; spill
+	CALL	__istix
+	POP	HL
+	POP	BC
+	LD	BC,(IX+-2)
+	LD	DE,HL
+	LD	HL,DE
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,DE
+	ADD	HL,HL
+	LD	DE,_testTiles
+	ADD	HL,DE
+	LD	DE,HL
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	OR	A,A
+	SBC	HL,BC
+	LD	BC,-3704	; unspill
+	PUSH	HL
+	CALL	__ildix
+	LD	BC,HL
+	POP	HL
+	ADD	HL,BC
+	LD	(HL),DE
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_338:
+	LD.LIS	BC,256
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_336
+;  692		
+;  693		//tilemap.tiles = (gfx_sprite_t**)tiles; // must be tiles, not bg
+;  694	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _copyTiles ***************************
+;Name                         Addr/Register   Size   Type
+;_tiles                              STATIC    768   variable
+;_testTiles                          STATIC  16896   variable
+;_55temp55                           STATIC     66   variable
+;_54temp54                           STATIC     66   variable
+;_53temp53                           STATIC     66   variable
+;_52temp52                           STATIC     66   variable
+;_51temp51                           STATIC     66   variable
+;_50temp50                           STATIC     66   variable
+;_49temp49                           STATIC     66   variable
+;_48temp48                           STATIC     66   variable
+;_47temp47                           STATIC     66   variable
+;_46temp46                           STATIC     66   variable
+;_45temp45                           STATIC     66   variable
+;_44temp44                           STATIC     66   variable
+;_43temp43                           STATIC     66   variable
+;_42temp42                           STATIC     66   variable
+;_41temp41                           STATIC     66   variable
+;_40temp40                           STATIC     66   variable
+;_39temp39                           STATIC     66   variable
+;_38temp38                           STATIC     66   variable
+;_37temp37                           STATIC     66   variable
+;_36temp36                           STATIC     66   variable
+;_35temp35                           STATIC     66   variable
+;_34temp34                           STATIC     66   variable
+;_33temp33                           STATIC     66   variable
+;_32temp32                           STATIC     66   variable
+;_31temp31                           STATIC     66   variable
+;_30temp30                           STATIC     66   variable
+;_29temp29                           STATIC     66   variable
+;_28temp28                           STATIC     66   variable
+;_27temp27                           STATIC     66   variable
+;_26temp26                           STATIC     66   variable
+;_25temp25                           STATIC     66   variable
+;_24temp24                           STATIC     66   variable
+;_23temp23                           STATIC     66   variable
+;_22temp22                           STATIC     66   variable
+;_21temp21                           STATIC     66   variable
+;_20temp20                           STATIC     66   variable
+;_19temp19                           STATIC     66   variable
+;_18temp18                           STATIC     66   variable
+;_17temp17                           STATIC     66   variable
+;_16temp16                           STATIC     66   variable
+;_15temp15                           STATIC     66   variable
+;_14temp14                           STATIC     66   variable
+;_13temp13                           STATIC     66   variable
+;_12temp12                           STATIC     66   variable
+;_11temp11                           STATIC     66   variable
+;_10temp10                           STATIC     66   variable
+;_9temp9                             STATIC     66   variable
+;_8temp8                             STATIC     66   variable
+;_7temp7                             STATIC     66   variable
+;_6temp6                             STATIC     66   variable
+;_5temp5                             STATIC     66   variable
+;_4temp4                             STATIC     66   variable
+;_3temp3                             STATIC     66   variable
+;_2temp2                             STATIC     66   variable
+;_1temp1                             STATIC     66   variable
+;_0temp0                             STATIC     66   variable
+;tile00                             IX-3698     66   variable
+;tileb7                             IX-3632     66   variable
+;tileb6                             IX-3566     66   variable
+;tileb5                             IX-3500     66   variable
+;tileb4                             IX-3434     66   variable
+;tile38                             IX-3368     66   variable
+;tile37                             IX-3302     66   variable
+;tile36                             IX-3236     66   variable
+;tile35                             IX-3170     66   variable
+;tile34                             IX-3104     66   variable
+;tile33                             IX-3038     66   variable
+;tile32                             IX-2972     66   variable
+;tile31                             IX-2906     66   variable
+;tile30                             IX-2840     66   variable
+;tile26                             IX-2774     66   variable
+;tile25                             IX-2708     66   variable
+;tile24                             IX-2642     66   variable
+;tile27                             IX-2576     66   variable
+;tile2b                             IX-2510     66   variable
+;tile29                             IX-2444     66   variable
+;tile28                             IX-2378     66   variable
+;tile23                             IX-2312     66   variable
+;tile22                             IX-2246     66   variable
+;tile21                             IX-2180     66   variable
+;tile20                             IX-2114     66   variable
+;tile1f                             IX-2048     66   variable
+;tile1e                             IX-1982     66   variable
+;tile1d                             IX-1916     66   variable
+;tile1c                             IX-1850     66   variable
+;tile1b                             IX-1784     66   variable
+;tile1a                             IX-1718     66   variable
+;tile19                             IX-1652     66   variable
+;tile18                             IX-1586     66   variable
+;tile17                             IX-1520     66   variable
+;tile16                             IX-1454     66   variable
+;tile15                             IX-1388     66   variable
+;tile14                             IX-1322     66   variable
+;tile13                             IX-1256     66   variable
+;tile12                             IX-1190     66   variable
+;tile11                             IX-1124     66   variable
+;tile10                             IX-1058     66   variable
+;tile0f                              IX-992     66   variable
+;tile0e                              IX-926     66   variable
+;tile0d                              IX-860     66   variable
+;tile0c                              IX-794     66   variable
+;tile0b                              IX-728     66   variable
+;tile0a                              IX-662     66   variable
+;tile09                              IX-596     66   variable
+;tile08                              IX-530     66   variable
+;tile07                              IX-464     66   variable
+;tile06                              IX-398     66   variable
+;tile05                              IX-332     66   variable
+;tile04                              IX-266     66   variable
+;tile03                              IX-200     66   variable
+;tile02                              IX-134     66   variable
+;tile01                               IX-68     66   variable
+;i                                     IX-2      2   variable
+
+
+; Stack Frame Size: 3713 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+	SEGMENT TEXT
+_0temp0:
+	DB	8
+	DB	8
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_1temp1:
+	DB	8
+	DB	8
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_2temp2:
+	DB	8
+	DB	8
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_3temp3:
+	DB	8
+	DB	8
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_4temp4:
+	DB	8
+	DB	8
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_5temp5:
+	DB	8
+	DB	8
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_6temp6:
+	DB	8
+	DB	8
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_7temp7:
+	DB	8
+	DB	8
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_8temp8:
+	DB	8
+	DB	8
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_9temp9:
+	DB	8
+	DB	8
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_10temp10:
+	DB	8
+	DB	8
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_11temp11:
+	DB	8
+	DB	8
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_12temp12:
+	DB	8
+	DB	8
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_13temp13:
+	DB	8
+	DB	8
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_14temp14:
+	DB	8
+	DB	8
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_15temp15:
+	DB	8
+	DB	8
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_16temp16:
+	DB	8
+	DB	8
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_17temp17:
+	DB	8
+	DB	8
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_18temp18:
+	DB	8
+	DB	8
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_19temp19:
+	DB	8
+	DB	8
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_20temp20:
+	DB	8
+	DB	8
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_21temp21:
+	DB	8
+	DB	8
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_22temp22:
+	DB	8
+	DB	8
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_23temp23:
+	DB	8
+	DB	8
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_24temp24:
+	DB	8
+	DB	8
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_25temp25:
+	DB	8
+	DB	8
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_26temp26:
+	DB	8
+	DB	8
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_27temp27:
+	DB	8
+	DB	8
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_28temp28:
+	DB	8
+	DB	8
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_29temp29:
+	DB	8
+	DB	8
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_30temp30:
+	DB	8
+	DB	8
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_31temp31:
+	DB	8
+	DB	8
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_32temp32:
+	DB	8
+	DB	8
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_33temp33:
+	DB	8
+	DB	8
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_34temp34:
+	DB	8
+	DB	8
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_35temp35:
+	DB	8
+	DB	8
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_36temp36:
+	DB	8
+	DB	8
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_37temp37:
+	DB	8
+	DB	8
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	64
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	64
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_38temp38:
+	DB	8
+	DB	8
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	48
+	DB	48
+	DB	64
+	DB	64
+	DB	64
+_39temp39:
+	DB	8
+	DB	8
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_40temp40:
+	DB	8
+	DB	8
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+_41temp41:
+	DB	8
+	DB	8
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+_42temp42:
+	DB	8
+	DB	8
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+_43temp43:
+	DB	8
+	DB	8
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	15
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	15
+	DB	26
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	15
+	DB	26
+	DB	26
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	15
+	DB	26
+	DB	26
+	DB	26
+	DB	34
+	DB	34
+	DB	34
+	DB	15
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	34
+	DB	34
+	DB	15
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	34
+	DB	15
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	15
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+_44temp44:
+	DB	8
+	DB	8
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	15
+	DB	15
+	DB	15
+	DB	34
+	DB	34
+	DB	15
+	DB	15
+	DB	15
+	DB	26
+	DB	26
+	DB	26
+	DB	15
+	DB	15
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+_45temp45:
+	DB	8
+	DB	8
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	15
+	DB	15
+	DB	15
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	26
+	DB	26
+	DB	26
+	DB	15
+	DB	15
+	DB	15
+	DB	34
+	DB	34
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	15
+	DB	15
+_46temp46:
+	DB	8
+	DB	8
+	DB	15
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	26
+	DB	15
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	26
+	DB	26
+	DB	15
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	26
+	DB	26
+	DB	26
+	DB	15
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	15
+	DB	34
+	DB	34
+	DB	34
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	15
+	DB	34
+	DB	34
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	15
+	DB	34
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	15
+_47temp47:
+	DB	8
+	DB	8
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	15
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	15
+	DB	15
+	DB	15
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	15
+	DB	15
+	DB	15
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	15
+	DB	15
+	DB	15
+	DB	26
+	DB	26
+	DB	15
+	DB	15
+	DB	26
+	DB	15
+	DB	15
+	DB	15
+	DB	26
+	DB	26
+	DB	15
+	DB	15
+	DB	26
+	DB	26
+	DB	15
+	DB	26
+	DB	26
+	DB	26
+	DB	15
+	DB	15
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	15
+	DB	15
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+	DB	26
+_48temp48:
+	DB	8
+	DB	8
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	15
+	DB	15
+	DB	15
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	15
+	DB	41
+	DB	41
+	DB	41
+	DB	34
+	DB	34
+	DB	34
+	DB	15
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	34
+	DB	34
+	DB	34
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	34
+	DB	15
+	DB	15
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	15
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	15
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	34
+	DB	15
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+_49temp49:
+	DB	8
+	DB	8
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	15
+	DB	15
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	15
+	DB	41
+	DB	41
+	DB	34
+	DB	34
+	DB	34
+	DB	15
+	DB	15
+	DB	41
+	DB	41
+	DB	41
+	DB	34
+	DB	34
+	DB	15
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	34
+	DB	34
+	DB	15
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	34
+	DB	34
+	DB	15
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	34
+	DB	15
+	DB	41
+	DB	41
+	DB	41
+	DB	26
+	DB	26
+	DB	41
+	DB	15
+	DB	41
+	DB	41
+	DB	41
+	DB	26
+	DB	41
+	DB	41
+	DB	41
+_50temp50:
+	DB	8
+	DB	8
+	DB	15
+	DB	15
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	41
+	DB	41
+	DB	15
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	41
+	DB	41
+	DB	41
+	DB	15
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	41
+	DB	41
+	DB	41
+	DB	15
+	DB	34
+	DB	15
+	DB	34
+	DB	34
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	15
+	DB	41
+	DB	15
+	DB	34
+	DB	41
+	DB	26
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	15
+	DB	41
+	DB	41
+	DB	26
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	15
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	15
+_51temp51:
+	DB	8
+	DB	8
+	DB	15
+	DB	34
+	DB	34
+	DB	15
+	DB	34
+	DB	34
+	DB	34
+	DB	34
+	DB	15
+	DB	34
+	DB	15
+	DB	34
+	DB	15
+	DB	34
+	DB	34
+	DB	34
+	DB	41
+	DB	15
+	DB	41
+	DB	41
+	DB	15
+	DB	34
+	DB	34
+	DB	34
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	15
+	DB	34
+	DB	15
+	DB	34
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	15
+	DB	41
+	DB	15
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	15
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	15
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	41
+	DB	15
+	DB	34
+_52temp52:
+	DB	8
+	DB	8
+	DB	23
+	DB	54
+	DB	54
+	DB	54
+	DB	54
+	DB	54
+	DB	54
+	DB	54
+	DB	54
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	54
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	54
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	54
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	54
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	54
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	54
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+_53temp53:
+	DB	8
+	DB	8
+	DB	54
+	DB	15
+	DB	23
+	DB	54
+	DB	54
+	DB	54
+	DB	54
+	DB	23
+	DB	23
+	DB	15
+	DB	54
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	15
+	DB	23
+	DB	15
+	DB	54
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	15
+	DB	23
+	DB	15
+	DB	54
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	15
+	DB	23
+	DB	15
+	DB	54
+	DB	15
+	DB	23
+	DB	23
+	DB	23
+	DB	15
+	DB	23
+	DB	15
+	DB	23
+	DB	15
+	DB	15
+	DB	15
+	DB	15
+	DB	23
+	DB	23
+	DB	15
+	DB	54
+	DB	54
+	DB	54
+	DB	54
+	DB	54
+	DB	15
+	DB	23
+	DB	15
+	DB	54
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	15
+_54temp54:
+	DB	8
+	DB	8
+	DB	54
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	54
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	15
+	DB	15
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	54
+	DB	54
+	DB	15
+	DB	15
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	54
+	DB	23
+	DB	54
+	DB	54
+	DB	15
+	DB	15
+	DB	15
+	DB	15
+	DB	54
+	DB	23
+	DB	23
+	DB	23
+	DB	54
+	DB	54
+	DB	54
+	DB	15
+	DB	54
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	15
+	DB	23
+	DB	15
+	DB	15
+	DB	15
+	DB	15
+	DB	15
+	DB	15
+	DB	23
+_55temp55:
+	DB	8
+	DB	8
+	DB	23
+	DB	15
+	DB	54
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	15
+	DB	23
+	DB	15
+	DB	54
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	15
+	DB	15
+	DB	54
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	15
+	DB	15
+	DB	54
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	15
+	DB	54
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	15
+	DB	54
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	15
+	DB	54
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	23
+	DB	15
+	DB	15
+	DB	54
+	DB	15
+	DB	15
+	DB	15
+	DB	15
+	DB	15
+	DB	15
+	DB	23
+	XREF __stoiu:ROM
+	XREF __ildix:ROM
+	XREF __istix:ROM
+	XREF __frameset:ROM
+	XDEF _copyTiles
+	XDEF _tiles
+	XDEF _testTiles
+	END

@@ -1,0 +1,71 @@
+; Zilog eZ80 ANSI C Compiler Release 3.4
+; -nomodsect -optspeed -noreduceopt -peephole -globalopt
+; -localcse -const=ROM 
+	FILE	"..\..\..\CE-PRO~1\SPRITES\SRC\PALETTES.C"
+	.assume ADL=1
+	SEGMENT DATA
+_palettes0:
+	DB	64
+	DB	41
+	DB	26
+	DB	15
+	DB	64
+	DB	54
+	DB	23
+	DB	15
+	DB	64
+	DB	48
+	DB	33
+	DB	15
+	DB	64
+	DB	0
+	DB	23
+	DB	15
+_palettes1:
+	DB	64
+	DB	0
+	DB	0
+	DB	0
+	DB	64
+	DB	0
+	DB	0
+	DB	0
+	DB	64
+	DB	0
+	DB	0
+	DB	0
+	DB	64
+	DB	0
+	DB	0
+	DB	0
+	XDEF _palettes1
+	XDEF _palettes0
+;    1	#include <stdint.h>
+;    2	
+;    3	#include "palettes.h"
+;    4	
+;    5	//uint8_t background = 0x22;
+;    6	uint8_t palettes0[16] = {
+;    7		0x40,
+;    8		0x29,
+;    9		0x1a,
+;   10		0x0f,
+;   11		
+;   12		0x40,
+;   13		0x36,
+;   14		0x17,
+;   15		0x0f,
+;   16		
+;   17		0x40,
+;   18		0x30,
+;   19		0x21,
+;   20		0x0f,
+;   21		
+;   22		0x40,
+;   23		0x00,
+;   24		0x17,
+;   25		0x0f,
+;   26	};
+;   27	
+;   28	uint8_t palettes1[16] = {
+	END

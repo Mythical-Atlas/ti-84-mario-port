@@ -1,0 +1,79 @@
+; Zilog eZ80 ANSI C Compiler Release 3.4
+; -nomodsect -optspeed -noreduceopt -peephole -globalopt
+; -localcse -const=ROM 
+	FILE	"..\..\..\CE-PRO~1\MARIO\SRC\COLORS.C"
+	.assume ADL=1
+	SEGMENT DATA
+_colors:
+	DW	48623
+	DW	31
+	DW	23
+	DW	8375
+	DW	18448
+	DW	20484
+	DW	20544
+	DW	50240
+	DW	480
+	DW	10432
+	DW	416
+	DW	352
+	DW	267
+	DW	0
+	DW	0
+	DW	0
+	DW	24311
+	DW	510
+	DW	382
+	DW	46367
+	DW	26649
+	DW	28683
+	DW	30944
+	DW	61794
+	DW	54752
+	DW	33472
+	DW	672
+	DW	680
+	DW	561
+	DW	0
+	DW	0
+	DW	0
+	DW	64478
+	DW	7935
+	DW	13887
+	DW	18942
+	DW	31230
+	DW	31090
+	DW	31211
+	DW	32392
+	DW	64192
+	DW	56259
+	DW	44874
+	DW	45010
+	DW	33690
+	DW	15855
+	DW	0
+	DW	0
+	DW	32767
+	DW	21407
+	DW	56030
+	DW	60126
+	DW	64222
+	DW	64151
+	DW	63285
+	DW	65396
+	DW	64335
+	DW	60367
+	DW	56278
+	DW	56282
+	DW	1023
+	DW	60250
+	DW	0
+	DW	0
+	DW	0
+	XDEF _colors
+;    1	#include <stdint.h>
+;    2	
+;    3	#include "colors.h"
+;    4	
+;    5	uint16_t colors[65] = {
+	END

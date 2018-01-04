@@ -1,0 +1,8387 @@
+; Zilog eZ80 ANSI C Compiler Release 3.4
+; -nomodsect -optspeed -noreduceopt -peephole -globalopt
+; -localcse -const=ROM 
+	FILE	"..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C"
+	.assume ADL=1
+	SEGMENT BSS
+_direction:
+	DS	1
+_up:
+	DS	1
+_left:
+	DS	1
+_right:
+	DS	1
+_dx:
+	DS	2*1
+_dy:
+	DS	2*1
+_sprites:
+	DS	16896
+_marioCanJump:
+	DS	1
+_marioJumping:
+	DS	1
+_marioGround:
+	DS	1
+_marioFrame:
+	DS	1
+_marioState:
+	DS	1
+_marioTimer:
+	DS	1
+_marioAnimation:
+	DS	1
+	SEGMENT DATA
+_marioGravity:
+	DW	80
+;    1	#include <tice.h>
+;    2	#include <stddef.h>
+;    3	#include <stdint.h>
+;    4	#include <stdbool.h>
+;    5	
+;    6	#include <math.h>
+;    7	#include <stdio.h>
+;    8	#include <stdlib.h>
+;    9	#include <string.h>
+;   10	#include <ctype.h>
+;   11	
+;   12	#include <graphx.h>
+;   13	#include <keypadc.h>
+;   14	
+;   15	#include "colors.h"
+;   16	#include "tiles.h"
+;   17	#include "oneone.h"
+;   18	
+;   19	//uint8_t background = 0x22;
+;   20	//uint8_t* tiles0[256];
+;   21	
+;   22	bool direction; // direction mario's facing (0 = right, 1 = left)
+;   23	
+;   24	bool up; // whether or not the up arrow is being pressed
+;   25	bool left; // whether or not the left arrow is being pressed
+;   26	bool right; // whether or not the right arrow is being pressed
+;   27	
+;   28	int16_t dx; // delta x (x speed)
+;   29	int16_t dy; // delta y (y speed)
+;   30	
+;   31	uint8_t sprites[256][66];
+;   32	
+;   33	bool marioCanJump;
+;   34	bool marioJumping;
+;   35	bool marioGround;
+;   36	uint8_t marioFrame;
+;   37	uint8_t marioState;
+;   38	uint8_t marioTimer;
+;   39	uint8_t marioAnimation;
+;   40	uint16_t marioGravity = 0x50;
+	SEGMENT CODE
+;   41	
+;   42	/*
+;   43	
+;   44	mario states/animations
+;   45	
+;   46	0 = idle
+;   47	1 = running
+;   48	2 = skidding
+;   49	
+;   50	*/
+;   51	
+;   52	void drawTiles();
+;   53	void copySprites();
+;   54	
+;   55	void drawMario();
+;   56	void updateMario();
+;   57	void checkMarioGround();
+;   58	
+;   59	bool checkCollision(uint16_t xy1, uint16_t wh1, uint16_t xy2, uint16_t wh2);
+;   60	
+;   61	void drawString(char* string, uint16_t sx, uint16_t sy);
+;   62	
+;   63	void main(void) {
+_main:
+;   64		char mxString[0x10000];
+;   65		
+;   66		copyTiles();
+	CALL	_copyTiles
+;   67		copySprites();
+	CALL	_copySprites
+;   68	
+;   69		tilemap.map = level;
+	LD	BC,_level
+	LD	(_tilemap),BC
+;   70		tilemap.tiles = (gfx_sprite_t**)tiles;
+	LD	BC,_tiles
+	LD	(_tilemap+3),BC
+;   71		tilemap.x_loc = 32;
+	LD	BC,32
+	LD	(_tilemap+15),BC
+;   72		tilemap.width = 80;
+	LD	A,80
+	LD	(_tilemap+13),A
+;   73		tilemap.height = 30;
+	LD	A,30
+	LD	(_tilemap+12),A
+;   74		tilemap.draw_width = 33;
+	LD	A,33
+	LD	(_tilemap+9),A
+;   75		tilemap.draw_height = 30;
+	LD	A,30
+	LD	(_tilemap+8),A
+;   76		tilemap.tile_width = 8;
+	LD	A,8
+	LD	(_tilemap+7),A
+;   77		tilemap.tile_height = 8;
+	LD	(_tilemap+6),A
+;   78		tilemap.type_width = gfx_tile_8_pixel;
+	LD	A,3
+;   79	    tilemap.type_height = gfx_tile_8_pixel;
+;   80		
+;   81		gfx_Begin(gfx_8bpp);
+	LD	BC,39
+	PUSH	BC
+	LD	(_tilemap+10),A
+	LD	(_tilemap+11),A
+	CALL	_gfx_Begin
+	POP	BC
+;   82		gfx_SetTransparentColor(0x40);
+	LD	BC,64
+	PUSH	BC
+	CALL	_gfx_SetTransparentColor
+	POP	BC
+;   83		gfx_SetPalette(colors, 129, 0);
+	LD	BC,0
+	PUSH	BC
+	LD	BC,129
+	PUSH	BC
+	LD	BC,_colors
+	PUSH	BC
+	CALL	_gfx_SetPalette
+	POP	BC
+	POP	BC
+	POP	BC
+;   84		gfx_SetDrawBuffer();
+	LD	BC,1
+	PUSH	BC
+	CALL	_gfx_SetDraw
+	POP	BC
+;   85		
+;   86		oneone();
+	CALL	_oneone
+;   87		
+;   88		while(1) {
+L_9:
+;   89			kb_Scan();
+	CALL	_kb_Scan
+;   90			
+;   91			if(kb_Data[6] & kb_Clear) {break;}
+	LD	A,(16056348)
+	AND	A,64
+	JR	NZ,L_10
+;   92			
+;   93			up = 0;
+	XOR	A,A
+	LD	(_up),A
+;   94			left = 0;
+	XOR	A,A
+	LD	(_left),A
+;   95			right = 0;
+	XOR	A,A
+	LD	(_right),A
+;   96			
+;   97			if(kb_Data[7] & kb_Up) {up = 1;}
+	LD	A,(16056350)
+	AND	A,8
+	JR	Z,L_4
+	LD	A,1
+	LD	(_up),A
+L_4:
+;   98			if(kb_Data[7] & kb_Left) {left = 1;}
+	LD	A,(16056350)
+	AND	A,2
+	JR	Z,L_6
+	LD	A,1
+	LD	(_left),A
+L_6:
+;   99			if(kb_Data[7] & kb_Right) {right = 1;}
+	LD	A,(16056350)
+	AND	A,4
+	JR	Z,L_7
+	LD	A,1
+	LD	(_right),A
+L_7:
+;  100			
+;  101			/*switch(kb_Data[7]) {
+;  102				case(kb_Up):
+;  103					up = 1;
+;  104					break;
+;  105				case(kb_Left):
+;  106					left = 1;
+;  107					break;
+;  108				case(kb_Right):
+;  109					right = 1;
+;  110					break;
+;  111			}*/
+;  112			
+;  113			updateMario();
+	CALL	_updateMario
+;  114			updateMario();
+	CALL	_updateMario
+;  115			
+;  116			gfx_FillScreen(0x22);
+	LD	BC,34
+	PUSH	BC
+	CALL	_gfx_FillScreen
+	POP	BC
+;  117			
+;  118			drawTiles();
+	CALL	_drawTiles
+;  119			drawMario();
+	CALL	_drawMario
+;  120			
+;  121			/*if(marioGround) {drawString("ground - 1", 32, 0);}
+;  122			else {drawString("ground - 0", 32, 0);}
+;  123			
+;  124			if(up) {drawString("up - 1", 32, 8);}
+;  125			else {drawString("up - 0", 32, 8);}
+;  126			
+;  127			sprintf(mxString, "dy - 0*%x", dy);
+;  128			drawString(mxString, 32, 16);*/
+;  129			
+;  130			/*sprintf(mxString, "my - 0*%x", my);
+;  131			drawString(mxString, 32, 8);
+;  132			sprintf(mxString, "yblocks 0 - %i", yBlocks[0]);
+;  133			drawString(mxString, 32, 16);
+;  134			sprintf(mxString, "yblocks 1 - %i", yBlocks[1]);
+;  135			drawString(mxString, 32, 24);*/
+;  136			
+;  137			/*sprintf(mxString, "mx - 0*%x", mx);
+;  138			drawString(mxString, 32, 0);
+;  139			
+;  140			sprintf(mxString, "dx - 0*%x", dx);
+;  141			drawString(mxString, 32, 8);*/
+;  142			
+;  143			//gfx_TransparentSprite((gfx_sprite_t*)testTiles[0x04], 16, 16);
+;  144			
+;  145			gfx_SetColor(0x1f);
+	LD	BC,31
+	PUSH	BC
+	CALL	_gfx_SetColor
+	POP	BC
+;  146			gfx_FillRectangle(0, 0, 32, 240);
+	LD	BC,240
+	PUSH	BC
+	LD	BC,32
+	PUSH	BC
+	LD	BC,0
+	PUSH	BC
+	PUSH	BC
+	CALL	_gfx_FillRectangle
+	POP	BC
+	POP	BC
+	POP	BC
+	POP	BC
+;  147			gfx_FillRectangle(320 - 32, 0, 32, 240);
+	LD	BC,240
+	PUSH	BC
+	LD	BC,32
+	PUSH	BC
+	LD	BC,0
+	PUSH	BC
+	LD	BC,288
+	PUSH	BC
+	CALL	_gfx_FillRectangle
+	POP	BC
+	POP	BC
+	POP	BC
+	POP	BC
+;  148			
+;  149			gfx_Blit(gfx_buffer);
+	LD	BC,1
+	PUSH	BC
+	CALL	_gfx_Blit
+	POP	BC
+	JR	L_9
+;  150		}
+L_10:
+;  151		
+;  152		gfx_End();
+	CALL	_gfx_End
+;  153	}
+	RET	
+
+
+;**************************** _main ***************************
+;Name                         Addr/Register   Size   Type
+;_gfx_End                            IMPORT  -----   function
+;_gfx_Blit                           IMPORT  -----   function
+;_gfx_FillRectangle                  IMPORT  -----   function
+;_gfx_SetColor                       IMPORT  -----   function
+;_drawMario                          IMPORT  -----   function
+;_drawTiles                          IMPORT  -----   function
+;_gfx_FillScreen                     IMPORT  -----   function
+;_updateMario                        IMPORT  -----   function
+;_right                              STATIC      1   variable
+;_left                               STATIC      1   variable
+;_up                                 STATIC      1   variable
+;_kb_Scan                            IMPORT  -----   function
+;_oneone                             IMPORT  -----   function
+;_gfx_SetDraw                        IMPORT  -----   function
+;_colors                             IMPORT    130   variable
+;_gfx_SetPalette                     IMPORT  -----   function
+;_gfx_SetTransparentColor            IMPORT  -----   function
+;_gfx_Begin                          IMPORT  -----   function
+;_tiles                              IMPORT    768   variable
+;_tilemap                            IMPORT     18   variable
+;_level                              IMPORT   2400   variable
+;_copySprites                        IMPORT  -----   function
+;_copyTiles                          IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: 0 (instruction)
+
+
+;  154	
+;  155	void drawMario() {
+_drawMario:
+	LD	HL,-159
+	CALL	__frameset
+;  156		if(marioState == 0 && marioAnimation != 0) { // idle
+	LD	A,(_marioState)
+	OR	A,A
+	JR	NZ,L_26
+	LD	A,(_marioAnimation)
+	OR	A,A
+	JR	Z,L_26
+;  157			marioAnimation = 0;
+	XOR	A,A
+	LD	(_marioAnimation),A
+;  158			marioTimer = 0;
+	XOR	A,A
+	LD	(_marioTimer),A
+;  159			marioFrame = 0;
+	XOR	A,A
+	LD	(_marioFrame),A
+;  160		}
+L_26:
+;  161		if(marioState == 1) { // running
+	LD	A,(_marioState)
+	CP	A,1
+	JR	NZ,L_29
+;  162			if(marioAnimation != 1) {
+	LD	A,(_marioAnimation)
+	CP	A,1
+	JR	Z,L_24
+;  163				marioAnimation = 1;
+	LD	A,1
+	LD	(_marioAnimation),A
+;  164				marioTimer = 0;
+	XOR	A,A
+	LD	(_marioTimer),A
+;  165				marioFrame = 0;
+	XOR	A,A
+	LD	(_marioFrame),A
+;  166			}
+;  167			else {
+	JR	L_29
+L_24:
+;  168				marioTimer++;
+	LD	A,(_marioTimer)
+	INC	A
+	LD	(_marioTimer),A
+;  169				if(abs(dx) > 0xe0) {
+	LD	BC,(_dx)
+	CALL	__stoi
+	PUSH	HL
+	PUSH	BC
+	PUSH	HL
+	LD	HL,IY
+	LD	BC,-159
+	CALL	__istix
+	POP	HL
+	POP	BC
+	CALL	_abs
+	PUSH	BC
+	LD	BC,-159
+	PUSH	HL
+	CALL	__ildix
+	LD	IY,HL
+	POP	HL
+	POP	BC
+	POP	BC
+	LD	BC,HL
+	LD	HL,224
+	OR	A,A
+	SBC	HL,BC
+	JP	P,L_22
+;  170					if(marioTimer >= 2) {
+	LD	A,(_marioTimer)
+	CP	A,2
+	JR	C,L_29
+;  171						marioTimer = 0;
+	XOR	A,A
+	LD	(_marioTimer),A
+;  172						marioFrame++;
+	LD	A,(_marioFrame)
+	INC	A
+;  173						if(marioFrame == 3) {marioFrame = 0;} // running anim has 3 frames
+	CP	A,3
+	LD	(_marioFrame),A
+	JR	NZ,L_29
+	XOR	A,A
+	LD	(_marioFrame),A
+;  174					}
+;  175				}
+;  176				else {
+	JR	L_29
+L_22:
+;  177					if(marioTimer >= 4) {
+	LD	A,(_marioTimer)
+	CP	A,4
+	JR	C,L_29
+;  178						marioTimer = 0;
+	XOR	A,A
+	LD	(_marioTimer),A
+;  179						marioFrame++;
+	LD	A,(_marioFrame)
+	INC	A
+;  180						if(marioFrame == 3) {marioFrame = 0;} // running anim has 3 frames
+	CP	A,3
+	LD	(_marioFrame),A
+	JR	NZ,L_29
+	XOR	A,A
+	LD	(_marioFrame),A
+;  181					}
+;  182				}
+;  183			}
+;  184		}
+L_29:
+;  185		if(marioState == 2 && marioAnimation != 2) { // skidding
+	LD	A,(_marioState)
+	CP	A,2
+	JR	NZ,L_34
+	LD	A,(_marioAnimation)
+	CP	A,2
+	JR	Z,L_34
+;  186			marioAnimation = 2;
+	LD	A,2
+	LD	(_marioAnimation),A
+;  187			marioTimer = 0;
+	XOR	A,A
+	LD	(_marioTimer),A
+;  188			marioFrame = 0;
+	XOR	A,A
+	LD	(_marioFrame),A
+;  189		}
+L_34:
+;  190		
+;  191		if(marioAnimation == 0) { // idle
+	LD	A,(_marioAnimation)
+	OR	A,A
+	JR	NZ,L_47
+;  192			if(!direction) {
+	LD	A,(_direction)
+	OR	A,A
+	JR	NZ,L_31
+;  193				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x00], floor(mx / 128) - x + 8, floor(my / 128));
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	PUSH	BC
+	PUSH	HL
+	LD	HL,IY
+	LD	BC,-159
+	CALL	__istix
+	POP	HL
+	POP	BC
+	CALL	_floor
+	PUSH	BC
+	LD	BC,-159
+	PUSH	HL
+	CALL	__ildix
+	LD	IY,HL
+	POP	HL
+	POP	BC
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	PUSH	BC
+	PUSH	HL
+	LD	HL,IY
+	LD	BC,-159
+	CALL	__istix
+	POP	HL
+	POP	BC
+	CALL	_floor
+	PUSH	BC
+	LD	BC,-159
+	PUSH	HL
+	CALL	__ildix
+	LD	IY,HL
+	POP	HL
+	POP	BC
+	POP	BC
+	POP	BC
+	PUSH	IY
+	LEA	IY,IX+-128	; spill
+	LD	(IY+-27),HL
+	POP	IY
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	PUSH	IY
+	LEA	IY,IX+-128	; spill
+	LD	(IY+-28),E
+	POP	IY
+	LD	E,A
+	PUSH	IY
+	LEA	IY,IX+-128	; spill
+	LD	(IY+-3),BC
+	LD	HL,(IY+-27)
+	POP	IY
+	LD	BC,HL
+	PUSH	IY
+	LEA	IY,IX+-128	; unspill
+	LD	HL,(IY+-3)
+	LD	(IY+-7),H
+	LD	H,(IY+-28)
+	POP	IY
+	LD	A,H
+	PUSH	IY
+	LEA	IY,IX+-128	; unspill
+	LD	H,(IY+-7)
+	POP	IY
+	CALL	__fsub
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,_sprites
+	PUSH	BC
+	PUSH	BC
+	PUSH	HL
+	LD	HL,IY
+	LD	BC,-159
+	CALL	__istix
+	POP	HL
+	POP	BC
+	CALL	_gfx_TransparentSprite
+	PUSH	BC
+	LD	BC,-159
+	PUSH	HL
+	CALL	__ildix
+	LD	IY,HL
+	POP	HL
+	POP	BC
+	POP	BC
+	POP	BC
+	POP	BC
+;  194				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x01], floor(mx / 128) - x + 16, floor(my / 128));
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	PUSH	BC
+	PUSH	HL
+	LD	HL,IY
+	LD	BC,-159
+	CALL	__istix
+	POP	HL
+	POP	BC
+	CALL	_floor
+	PUSH	BC
+	LD	BC,-159
+	PUSH	HL
+	CALL	__ildix
+	LD	IY,HL
+	POP	HL
+	POP	BC
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	PUSH	BC
+	PUSH	HL
+	LD	HL,IY
+	LD	BC,-159
+	CALL	__istix
+	POP	HL
+	POP	BC
+	CALL	_floor
+	PUSH	BC
+	LD	BC,-159
+	PUSH	HL
+	CALL	__ildix
+	LD	IY,HL
+	POP	HL
+	POP	BC
+	POP	BC
+	POP	BC
+	PUSH	IY
+	LEA	IY,IX+-128	; spill
+	LD	(IY+-23),HL
+	POP	IY
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	PUSH	IY
+	LEA	IY,IX+-128	; spill
+	LD	(IY+-24),E
+	POP	IY
+	LD	E,A
+	PUSH	IY
+	LEA	IY,IX+-128	; spill
+	LD	(IY+-3),BC
+	LD	HL,(IY+-23)
+	POP	IY
+	LD	BC,HL
+	PUSH	IY
+	LEA	IY,IX+-128	; unspill
+	LD	HL,(IY+-3)
+	LD	(IY+-7),H
+	LD	H,(IY+-24)
+	POP	IY
+	LD	A,H
+	PUSH	IY
+	LEA	IY,IX+-128	; unspill
+	LD	H,(IY+-7)
+	POP	IY
+	CALL	__fsub
+	LD	HL,8388608
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	IY,_sprites
+	LEA	BC,IY+66
+	PUSH	BC
+	PUSH	BC
+	PUSH	HL
+	LD	HL,IY
+	LD	BC,-159
+	CALL	__istix
+	POP	HL
+	POP	BC
+	CALL	_gfx_TransparentSprite
+	PUSH	BC
+	LD	BC,-159
+	PUSH	HL
+	CALL	__ildix
+	LD	IY,HL
+	POP	HL
+	POP	BC
+	POP	BC
+	POP	BC
+	POP	BC
+;  195			}
+;  196			else {
+	JR	L_32
+L_31:
+;  197				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x04], floor(mx / 128) - x + 8, floor(my / 128));
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	PUSH	BC
+	PUSH	HL
+	LD	HL,IY
+	LD	BC,-159
+	CALL	__istix
+	POP	HL
+	POP	BC
+	CALL	_floor
+	PUSH	BC
+	LD	BC,-159
+	PUSH	HL
+	CALL	__ildix
+	LD	IY,HL
+	POP	HL
+	POP	BC
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	PUSH	BC
+	PUSH	HL
+	LD	HL,IY
+	LD	BC,-159
+	CALL	__istix
+	POP	HL
+	POP	BC
+	CALL	_floor
+	PUSH	BC
+	LD	BC,-159
+	PUSH	HL
+	CALL	__ildix
+	LD	IY,HL
+	POP	HL
+	POP	BC
+	POP	BC
+	POP	BC
+	PUSH	IY
+	LEA	IY,IX+-128	; spill
+	LD	(IY+-19),HL
+	POP	IY
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	PUSH	IY
+	LEA	IY,IX+-128	; spill
+	LD	(IY+-20),E
+	POP	IY
+	LD	E,A
+	PUSH	IY
+	LEA	IY,IX+-128	; spill
+	LD	(IY+-3),BC
+	LD	HL,(IY+-19)
+	POP	IY
+	LD	BC,HL
+	PUSH	IY
+	LEA	IY,IX+-128	; unspill
+	LD	HL,(IY+-3)
+	LD	(IY+-7),H
+	LD	H,(IY+-20)
+	POP	IY
+	LD	A,H
+	PUSH	IY
+	LEA	IY,IX+-128	; unspill
+	LD	H,(IY+-7)
+	POP	IY
+	CALL	__fsub
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,264
+	ADD	HL,BC
+	PUSH	HL
+	PUSH	BC
+	PUSH	HL
+	LD	HL,IY
+	LD	BC,-159
+	CALL	__istix
+	POP	HL
+	POP	BC
+	CALL	_gfx_TransparentSprite
+	PUSH	BC
+	LD	BC,-159
+	PUSH	HL
+	CALL	__ildix
+	LD	IY,HL
+	POP	HL
+	POP	BC
+	POP	BC
+	POP	BC
+	POP	BC
+;  198				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x05], floor(mx / 128) - x + 16, floor(my / 128));
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	PUSH	BC
+	PUSH	HL
+	LD	HL,IY
+	LD	BC,-159
+	CALL	__istix
+	POP	HL
+	POP	BC
+	CALL	_floor
+	PUSH	BC
+	LD	BC,-159
+	PUSH	HL
+	CALL	__ildix
+	LD	IY,HL
+	POP	HL
+	POP	BC
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	PUSH	BC
+	PUSH	HL
+	LD	HL,IY
+	LD	BC,-159
+	CALL	__istix
+	POP	HL
+	POP	BC
+	CALL	_floor
+	PUSH	BC
+	LD	BC,-159
+	PUSH	HL
+	CALL	__ildix
+	LD	IY,HL
+	POP	HL
+	POP	BC
+	POP	BC
+	POP	BC
+	PUSH	IY
+	LEA	IY,IX+-128	; spill
+	LD	(IY+-15),HL
+	POP	IY
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	PUSH	IY
+	LEA	IY,IX+-128	; spill
+	LD	(IY+-16),E
+	POP	IY
+	LD	E,A
+	PUSH	IY
+	LEA	IY,IX+-128	; spill
+	LD	(IY+-3),BC
+	LD	HL,(IY+-15)
+	POP	IY
+	LD	BC,HL
+	PUSH	IY
+	LEA	IY,IX+-128	; unspill
+	LD	HL,(IY+-3)
+	LD	(IY+-7),H
+	LD	H,(IY+-16)
+	POP	IY
+	LD	A,H
+	PUSH	IY
+	LEA	IY,IX+-128	; unspill
+	LD	H,(IY+-7)
+	POP	IY
+	CALL	__fsub
+	LD	HL,8388608
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,330
+	ADD	HL,BC
+	PUSH	HL
+	PUSH	BC
+	PUSH	HL
+	LD	HL,IY
+	LD	BC,-159
+	CALL	__istix
+	POP	HL
+	POP	BC
+	CALL	_gfx_TransparentSprite
+	PUSH	BC
+	LD	BC,-159
+	PUSH	HL
+	CALL	__ildix
+	LD	IY,HL
+	POP	HL
+	POP	BC
+	POP	BC
+	POP	BC
+	POP	BC
+;  199			}
+L_32:
+;  200			
+;  201			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x02], floor(mx / 128) - x + 8, floor(my / 128) + 8);
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	PUSH	BC
+	PUSH	HL
+	LD	HL,IY
+	LD	BC,-159
+	CALL	__istix
+	POP	HL
+	POP	BC
+	CALL	_floor
+	PUSH	BC
+	LD	BC,-159
+	PUSH	HL
+	CALL	__ildix
+	LD	IY,HL
+	POP	HL
+	POP	BC
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	PUSH	BC
+	PUSH	HL
+	LD	HL,IY
+	LD	BC,-159
+	CALL	__istix
+	POP	HL
+	POP	BC
+	CALL	_floor
+	PUSH	BC
+	LD	BC,-159
+	PUSH	HL
+	CALL	__ildix
+	LD	IY,HL
+	POP	HL
+	POP	BC
+	POP	BC
+	POP	BC
+	PUSH	IY
+	LEA	IY,IX+-128	; spill
+	LD	(IY+-11),HL
+	POP	IY
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	PUSH	IY
+	LEA	IY,IX+-128	; spill
+	LD	(IY+-12),E
+	POP	IY
+	LD	E,A
+	PUSH	IY
+	LEA	IY,IX+-128	; spill
+	LD	(IY+-3),BC
+	LD	HL,(IY+-11)
+	POP	IY
+	LD	BC,HL
+	PUSH	IY
+	LEA	IY,IX+-128	; unspill
+	LD	HL,(IY+-3)
+	LD	(IY+-7),H
+	LD	H,(IY+-12)
+	POP	IY
+	LD	A,H
+	PUSH	IY
+	LEA	IY,IX+-128	; unspill
+	LD	H,(IY+-7)
+	POP	IY
+	CALL	__fsub
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,132
+	ADD	HL,BC
+	PUSH	HL
+	PUSH	BC
+	PUSH	HL
+	LD	HL,IY
+	LD	BC,-159
+	CALL	__istix
+	POP	HL
+	POP	BC
+	CALL	_gfx_TransparentSprite
+	PUSH	BC
+	LD	BC,-159
+	PUSH	HL
+	CALL	__ildix
+	LD	IY,HL
+	POP	HL
+	POP	BC
+	POP	BC
+	POP	BC
+	POP	BC
+;  202			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x03], floor(mx / 128) - x + 16, floor(my / 128) + 8);
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	PUSH	BC
+	PUSH	HL
+	LD	HL,IY
+	LD	BC,-159
+	CALL	__istix
+	POP	HL
+	POP	BC
+	CALL	_floor
+	PUSH	BC
+	LD	BC,-159
+	PUSH	HL
+	CALL	__ildix
+	LD	IY,HL
+	POP	HL
+	POP	BC
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	PUSH	BC
+	PUSH	HL
+	LD	HL,IY
+	LD	BC,-159
+	CALL	__istix
+	POP	HL
+	POP	BC
+	CALL	_floor
+	PUSH	BC
+	LD	BC,-159
+	PUSH	HL
+	CALL	__ildix
+	LD	IY,HL
+	POP	HL
+	POP	BC
+	POP	BC
+	POP	BC
+	PUSH	IY
+	LEA	IY,IX+-128	; spill
+	LD	(IY+-6),HL
+	POP	IY
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	PUSH	IY
+	LEA	IY,IX+-128	; spill
+	LD	(IY+-8),E
+	POP	IY
+	LD	E,A
+	PUSH	IY
+	LEA	IY,IX+-128	; spill
+	LD	(IY+-3),BC
+	LD	HL,(IY+-6)
+	POP	IY
+	LD	BC,HL
+	PUSH	IY
+	LEA	IY,IX+-128	; unspill
+	LD	HL,(IY+-3)
+	LD	(IY+-7),H
+	LD	H,(IY+-8)
+	POP	IY
+	LD	A,H
+	PUSH	IY
+	LEA	IY,IX+-128	; unspill
+	LD	H,(IY+-7)
+	POP	IY
+	CALL	__fsub
+	LD	HL,8388608
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,198
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  203		}
+L_47:
+;  204		if(marioAnimation == 1) { // running
+	LD	A,(_marioAnimation)
+	CP	A,1
+	JR	NZ,L_51
+;  205			if(marioFrame == 0) {
+	LD	A,(_marioFrame)
+	OR	A,A
+	JR	NZ,L_41
+;  206				if(!direction) {
+	LD	A,(_direction)
+	OR	A,A
+	JR	NZ,L_36
+;  207					gfx_TransparentSprite((gfx_sprite_t*)sprites[0x06], floor(mx / 128) - x + 8, floor(my / 128));
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-127),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-128),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-127)
+	LD	A,(IX+-128)
+	CALL	__fsub
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,396
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  208					gfx_TransparentSprite((gfx_sprite_t*)sprites[0x07], floor(mx / 128) - x + 16, floor(my / 128));
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-123),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-124),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-123)
+	LD	A,(IX+-124)
+	CALL	__fsub
+	LD	HL,8388608
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,462
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  209					gfx_TransparentSprite((gfx_sprite_t*)sprites[0x08], floor(mx / 128) - x + 8, floor(my / 128) + 8);
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-119),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-120),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-119)
+	LD	A,(IX+-120)
+	CALL	__fsub
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,528
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  210					gfx_TransparentSprite((gfx_sprite_t*)sprites[0x09], floor(mx / 128) - x + 16, floor(my / 128) + 8);
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-115),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-116),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-115)
+	LD	A,(IX+-116)
+	CALL	__fsub
+	LD	HL,8388608
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,594
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  211				}
+;  212				else {
+	JR	L_41
+L_36:
+;  213					gfx_TransparentSprite((gfx_sprite_t*)sprites[0x0f], floor(mx / 128) - x + 8, floor(my / 128));
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-111),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-112),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-111)
+	LD	A,(IX+-112)
+	CALL	__fsub
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,990
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  214					gfx_TransparentSprite((gfx_sprite_t*)sprites[0x10], floor(mx / 128) - x + 16, floor(my / 128));
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-107),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-108),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-107)
+	LD	A,(IX+-108)
+	CALL	__fsub
+	LD	HL,8388608
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,1056
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  215					gfx_TransparentSprite((gfx_sprite_t*)sprites[0x11], floor(mx / 128) - x + 8, floor(my / 128) + 8);
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-103),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-104),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-103)
+	LD	A,(IX+-104)
+	CALL	__fsub
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,1122
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  216					gfx_TransparentSprite((gfx_sprite_t*)sprites[0x12], floor(mx / 128) - x + 16, floor(my / 128) + 8);
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-99),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-100),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-99)
+	LD	A,(IX+-100)
+	CALL	__fsub
+	LD	HL,8388608
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,1188
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  217				}
+;  218			}
+L_41:
+;  219			if(marioFrame == 1) {
+	LD	A,(_marioFrame)
+	CP	A,1
+	JR	NZ,L_45
+;  220				if(!direction) {
+	LD	A,(_direction)
+	OR	A,A
+	JR	NZ,L_39
+;  221					gfx_TransparentSprite((gfx_sprite_t*)sprites[0x0a], floor(mx / 128) - x + 8, floor(my / 128));
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-95),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-96),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-95)
+	LD	A,(IX+-96)
+	CALL	__fsub
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,660
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  222					gfx_TransparentSprite((gfx_sprite_t*)sprites[0x01], floor(mx / 128) - x + 16, floor(my / 128));
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-91),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-92),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-91)
+	LD	A,(IX+-92)
+	CALL	__fsub
+	LD	HL,8388608
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,_sprites+66
+	PUSH	BC
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  223					gfx_TransparentSprite((gfx_sprite_t*)sprites[0x0b], floor(mx / 128) - x + 8, floor(my / 128) + 8);
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-87),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-88),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-87)
+	LD	A,(IX+-88)
+	CALL	__fsub
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,726
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  224					gfx_TransparentSprite((gfx_sprite_t*)sprites[0x0c], floor(mx / 128) - x + 16, floor(my / 128) + 8);
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-83),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-84),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-83)
+	LD	A,(IX+-84)
+	CALL	__fsub
+	LD	HL,8388608
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,792
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  225				}
+;  226				else {
+	JR	L_45
+L_39:
+;  227					gfx_TransparentSprite((gfx_sprite_t*)sprites[0x04], floor(mx / 128) - x + 8, floor(my / 128));
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-79),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-80),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-79)
+	LD	A,(IX+-80)
+	CALL	__fsub
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,264
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  228					gfx_TransparentSprite((gfx_sprite_t*)sprites[0x13], floor(mx / 128) - x + 16, floor(my / 128));
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-75),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-76),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-75)
+	LD	A,(IX+-76)
+	CALL	__fsub
+	LD	HL,8388608
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,1254
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  229					gfx_TransparentSprite((gfx_sprite_t*)sprites[0x14], floor(mx / 128) - x + 8, floor(my / 128) + 8);
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-71),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-72),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-71)
+	LD	A,(IX+-72)
+	CALL	__fsub
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,1320
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  230					gfx_TransparentSprite((gfx_sprite_t*)sprites[0x15], floor(mx / 128) - x + 16, floor(my / 128) + 8);
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-67),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-68),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-67)
+	LD	A,(IX+-68)
+	CALL	__fsub
+	LD	HL,8388608
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,1386
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  231				}
+;  232			}
+L_45:
+;  233			if(marioFrame == 2) {
+	LD	A,(_marioFrame)
+	CP	A,2
+	JR	NZ,L_51
+;  234				if(!direction) {
+	LD	A,(_direction)
+	OR	A,A
+	JR	NZ,L_43
+;  235					gfx_TransparentSprite((gfx_sprite_t*)sprites[0x00], floor(mx / 128) - x + 8, floor(my / 128));
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-63),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-64),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-63)
+	LD	A,(IX+-64)
+	CALL	__fsub
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,_sprites
+	PUSH	BC
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  236					gfx_TransparentSprite((gfx_sprite_t*)sprites[0x01], floor(mx / 128) - x + 16, floor(my / 128));
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-59),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-60),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-59)
+	LD	A,(IX+-60)
+	CALL	__fsub
+	LD	HL,8388608
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,_sprites+66
+	PUSH	BC
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  237					gfx_TransparentSprite((gfx_sprite_t*)sprites[0x0d], floor(mx / 128) - x + 8, floor(my / 128) + 8);
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-55),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-56),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-55)
+	LD	A,(IX+-56)
+	CALL	__fsub
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,858
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  238					gfx_TransparentSprite((gfx_sprite_t*)sprites[0x0e], floor(mx / 128) - x + 16, floor(my / 128) + 8);
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-51),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-52),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-51)
+	LD	A,(IX+-52)
+	CALL	__fsub
+	LD	HL,8388608
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,924
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  239				}
+;  240				else {
+	JR	L_51
+L_43:
+;  241					gfx_TransparentSprite((gfx_sprite_t*)sprites[0x04], floor(mx / 128) - x + 8, floor(my / 128));
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-47),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-48),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-47)
+	LD	A,(IX+-48)
+	CALL	__fsub
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,264
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  242					gfx_TransparentSprite((gfx_sprite_t*)sprites[0x05], floor(mx / 128) - x + 16, floor(my / 128));
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-43),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-44),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-43)
+	LD	A,(IX+-44)
+	CALL	__fsub
+	LD	HL,8388608
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,330
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  243					gfx_TransparentSprite((gfx_sprite_t*)sprites[0x16], floor(mx / 128) - x + 8, floor(my / 128) + 8);
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-39),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-40),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-39)
+	LD	A,(IX+-40)
+	CALL	__fsub
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,1452
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  244					gfx_TransparentSprite((gfx_sprite_t*)sprites[0x17], floor(mx / 128) - x + 16, floor(my / 128) + 8);
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-35),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-36),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-35)
+	LD	A,(IX+-36)
+	CALL	__fsub
+	LD	HL,8388608
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,1518
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  245				}
+;  246			}
+;  247		}
+L_51:
+;  248		if(marioAnimation == 2) { // skidding
+	LD	A,(_marioAnimation)
+	CP	A,2
+	JR	NZ,L_52
+;  249			if(!direction) {
+	LD	A,(_direction)
+	OR	A,A
+	JR	NZ,L_49
+;  250				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x18], floor(mx / 128) - x + 8, floor(my / 128));
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-31),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-32),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-31)
+	LD	A,(IX+-32)
+	CALL	__fsub
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,1584
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  251				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x19], floor(mx / 128) - x + 16, floor(my / 128));
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-27),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-28),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-27)
+	LD	A,(IX+-28)
+	CALL	__fsub
+	LD	HL,8388608
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,1650
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  252				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x1a], floor(mx / 128) - x + 8, floor(my / 128) + 8);
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-23),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-24),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-23)
+	LD	A,(IX+-24)
+	CALL	__fsub
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,1716
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  253				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x1b], floor(mx / 128) - x + 16, floor(my / 128) + 8);
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-19),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-20),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-19)
+	LD	A,(IX+-20)
+	CALL	__fsub
+	LD	HL,8388608
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,1782
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  254			}
+;  255			else {
+	JR	L_52
+L_49:
+;  256				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x1c], floor(mx / 128) - x + 8, floor(my / 128));
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-15),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-16),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-15)
+	LD	A,(IX+-16)
+	CALL	__fsub
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,1848
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  257				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x1d], floor(mx / 128) - x + 16, floor(my / 128));
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-11),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-12),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-11)
+	LD	A,(IX+-12)
+	CALL	__fsub
+	LD	HL,8388608
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,1914
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  258				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x1e], floor(mx / 128) - x + 8, floor(my / 128) + 8);
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-7),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-8),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-7)
+	LD	A,(IX+-8)
+	CALL	__fsub
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,1980
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  259				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x1f], floor(mx / 128) - x + 16, floor(my / 128) + 8);
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	OR	A,A
+	SBC	HL,HL
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-3),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-4),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-3)
+	LD	A,(IX+-4)
+	CALL	__fsub
+	LD	HL,8388608
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	LD	HL,_sprites
+	LD	BC,2046
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  260			}
+;  261		}
+;  262	}
+L_52:
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _drawMario ***************************
+;Name                         Addr/Register   Size   Type
+;_sprites                            STATIC  16896   variable
+;_x                                  IMPORT      2   variable
+;_mx                                 IMPORT      4   variable
+;_my                                 IMPORT      4   variable
+;_floor                              IMPORT  -----   function
+;_gfx_TransparentSprite              IMPORT  -----   function
+;_direction                          STATIC      1   variable
+;_dx                                 STATIC      2   variable
+;_abs                                IMPORT  -----   function
+;_marioFrame                         STATIC      1   variable
+;_marioTimer                         STATIC      1   variable
+;_marioAnimation                     STATIC      1   variable
+;_marioState                         STATIC      1   variable
+
+
+; Stack Frame Size: 165 (bytes)
+;       Spill Code: -18 (instruction)
+
+
+;  263	
+;  264	void drawTiles() {
+_drawTiles:
+;  265		/*uint8_t a;
+;  266		uint16_t b = floor(x / 8);
+;  267		uint16_t i;*/
+;  268		
+;  269		/*for(a = 0; a < 30; a++) {
+;  270			for(i = 0; i < 41; i++) {
+;  271				rendertable[i + a * 41] = level[i + b + a * width];
+;  272			}
+;  273		}*/
+;  274		
+;  275		//tilemap.x_loc = 8 % x;
+;  276		
+;  277		gfx_Tilemap(&tilemap, x, 0);
+	LD	BC,0
+	PUSH	BC
+	LD	BC,(_x)
+	CALL	__stoiu
+	PUSH	HL
+	LD	BC,_tilemap
+	PUSH	BC
+	CALL	_gfx_Tilemap
+	POP	BC
+	POP	BC
+	POP	BC
+;  278	}
+	RET	
+
+
+;**************************** _drawTiles ***************************
+;Name                         Addr/Register   Size   Type
+;_tilemap                            IMPORT     18   variable
+;_x                                  IMPORT      2   variable
+;_gfx_Tilemap                        IMPORT  -----   function
+
+
+; Stack Frame Size: 6 (bytes)
+;       Spill Code: -18 (instruction)
+
+
+;  279	
+;  280	void copySprites() {
+_copySprites:
+	LD	HL,-2126
+	CALL	__frameset
+;  281		uint8_t tile00[66] = { // small idle right 0
+;  282			8, 8,
+;  283			0x40, 0x40, 0x40, 0x40, 0x40, 0x16, 0x16, 0x16,
+;  284			0x40, 0x40, 0x40, 0x40, 0x16, 0x16, 0x16, 0x16,
+;  285			0x40, 0x40, 0x40, 0x40, 0x18, 0x18, 0x18, 0x27,
+;  286			0x40, 0x40, 0x40, 0x18, 0x27, 0x18, 0x27, 0x27,
+;  287			0x40, 0x40, 0x40, 0x18, 0x27, 0x18, 0x18, 0x27,
+;  288			0x40, 0x40, 0x40, 0x18, 0x18, 0x27, 0x27, 0x27,
+;  289			0x40, 0x40, 0x40, 0x40, 0x40, 0x27, 0x27, 0x27,
+;  290			0x40, 0x40, 0x40, 0x40, 0x18, 0x18, 0x16, 0x18,
+;  291		};
+	LD	HL,IX
+	LD	BC,-2114
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_0temp54
+	LD	BC,66
+	LDIR	
+;  292		uint8_t tile01[66] = { // small idle right 1
+;  293			8, 8,
+;  294			0x16, 0x16, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  295			0x16, 0x16, 0x16, 0x16, 0x16, 0x40, 0x40, 0x40,
+;  296			0x27, 0x18, 0x27, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  297			0x27, 0x18, 0x27, 0x27, 0x27, 0x40, 0x40, 0x40,
+;  298			0x27, 0x27, 0x18, 0x27, 0x27, 0x27, 0x40, 0x40,
+;  299			0x27, 0x18, 0x18, 0x18, 0x18, 0x40, 0x40, 0x40,
+;  300			0x27, 0x27, 0x27, 0x27, 0x40, 0x40, 0x40, 0x40,
+;  301			0x18, 0x18, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  302		};
+	LEA	DE,IX+-68
+	LD	HL,_1temp55
+	LD	BC,66
+	LDIR	
+;  303		uint8_t tile02[66] = { // small idle right 2
+;  304			8, 8,
+;  305			0x40, 0x40, 0x40, 0x18, 0x18, 0x18, 0x16, 0x18,
+;  306			0x40, 0x40, 0x18, 0x18, 0x18, 0x18, 0x16, 0x16,
+;  307			0x40, 0x40, 0x27, 0x27, 0x18, 0x16, 0x27, 0x16,
+;  308			0x40, 0x40, 0x27, 0x27, 0x27, 0x16, 0x16, 0x16,
+;  309			0x40, 0x40, 0x27, 0x27, 0x16, 0x16, 0x16, 0x16,
+;  310			0x40, 0x40, 0x40, 0x40, 0x16, 0x16, 0x16, 0x40,
+;  311			0x40, 0x40, 0x40, 0x18, 0x18, 0x18, 0x40, 0x40,
+;  312			0x40, 0x40, 0x18, 0x18, 0x18, 0x18, 0x40, 0x40,
+;  313		};
+	LD	HL,IX
+	LD	BC,-134
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_2temp56
+	LD	BC,66
+	LDIR	
+;  314		uint8_t tile03[66] = { // small idle right 3
+;  315			8, 8,
+;  316			0x18, 0x16, 0x18, 0x18, 0x18, 0x40, 0x40, 0x40,
+;  317			0x16, 0x16, 0x18, 0x18, 0x18, 0x18, 0x40, 0x40,
+;  318			0x16, 0x27, 0x16, 0x18, 0x27, 0x27, 0x40, 0x40,
+;  319			0x16, 0x16, 0x16, 0x27, 0x27, 0x27, 0x40, 0x40,
+;  320			0x16, 0x16, 0x16, 0x16, 0x27, 0x27, 0x40, 0x40,
+;  321			0x40, 0x16, 0x16, 0x16, 0x40, 0x40, 0x40, 0x40,
+;  322			0x40, 0x40, 0x18, 0x18, 0x18, 0x40, 0x40, 0x40,
+;  323			0x40, 0x40, 0x18, 0x18, 0x18, 0x18, 0x40, 0x40,
+;  324		};
+	LD	HL,IX
+	LD	BC,-200
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_3temp57
+	LD	BC,66
+	LDIR	
+;  325		
+;  326		uint8_t tile04[66] = { // small idle left 0
+;  327			8, 8,
+;  328			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x16, 0x16,
+;  329			0x40, 0x40, 0x40, 0x16, 0x16, 0x16, 0x16, 0x16,
+;  330			0x40, 0x40, 0x40, 0x40, 0x40, 0x27, 0x18, 0x27,
+;  331			0x40, 0x40, 0x40, 0x27, 0x27, 0x27, 0x18, 0x27,
+;  332			0x40, 0x40, 0x27, 0x27, 0x27, 0x18, 0x27, 0x27,
+;  333			0x40, 0x40, 0x40, 0x18, 0x18, 0x18, 0x18, 0x27,
+;  334			0x40, 0x40, 0x40, 0x40, 0x27, 0x27, 0x27, 0x27,
+;  335			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x18, 0x18,
+;  336		};
+	LD	HL,IX
+	LD	BC,-266
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_4temp58
+	LD	BC,66
+	LDIR	
+;  337		uint8_t tile05[66] = { // small idle left 1
+;  338			8, 8,	
+;  339			0x16, 0x16, 0x16, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  340			0x16, 0x16, 0x16, 0x16, 0x40, 0x40, 0x40, 0x40,
+;  341			0x27, 0x18, 0x18, 0x18, 0x40, 0x40, 0x40, 0x40,
+;  342			0x27, 0x27, 0x18, 0x27, 0x18, 0x40, 0x40, 0x40,
+;  343			0x27, 0x18, 0x18, 0x27, 0x18, 0x40, 0x40, 0x40,
+;  344			0x27, 0x27, 0x27, 0x18, 0x18, 0x40, 0x40, 0x40,
+;  345			0x27, 0x27, 0x27, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  346			0x18, 0x16, 0x18, 0x18, 0x40, 0x40, 0x40, 0x40,
+;  347		};
+	LD	HL,IX
+	LD	BC,-332
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_5temp59
+	LD	BC,66
+	LDIR	
+;  348		//      tile02            small idle left 2
+;  349		//      tile03            small idle left 3
+;  350		
+;  351		uint8_t tile06[66] = { // small run 0 right 0
+;  352			8, 8,
+;  353			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  354			0x40, 0x40, 0x40, 0x40, 0x40, 0x16, 0x16, 0x16,
+;  355			0x40, 0x40, 0x40, 0x40, 0x16, 0x16, 0x16, 0x16,
+;  356			0x40, 0x40, 0x40, 0x40, 0x18, 0x18, 0x18, 0x27,
+;  357			0x40, 0x40, 0x40, 0x18, 0x27, 0x18, 0x27, 0x27,
+;  358			0x40, 0x40, 0x40, 0x18, 0x27, 0x18, 0x18, 0x27,
+;  359			0x40, 0x40, 0x40, 0x18, 0x18, 0x27, 0x27, 0x27,
+;  360			0x40, 0x40, 0x40, 0x40, 0x40, 0x27, 0x27, 0x27,
+;  361		};
+	LD	HL,IX
+	LD	BC,-398
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_6temp60
+	LD	BC,66
+	LDIR	
+;  362		uint8_t tile07[66] = { // small run 0 right 1
+;  363			8, 8,	
+;  364			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  365			0x16, 0x16, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  366			0x16, 0x16, 0x16, 0x16, 0x16, 0x40, 0x40, 0x40,
+;  367			0x27, 0x18, 0x27, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  368			0x27, 0x18, 0x27, 0x27, 0x27, 0x40, 0x40, 0x40,
+;  369			0x27, 0x27, 0x18, 0x27, 0x27, 0x27, 0x40, 0x40,
+;  370			0x27, 0x18, 0x18, 0x18, 0x18, 0x40, 0x40, 0x40,
+;  371			0x27, 0x27, 0x27, 0x27, 0x40, 0x40, 0x40, 0x40,
+;  372		};
+	LD	HL,IX
+	LD	BC,-464
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_7temp61
+	LD	BC,66
+	LDIR	
+;  373		uint8_t tile08[66] = { // small run 0 right 2
+;  374			8, 8,	
+;  375			0x40, 0x40, 0x40, 0x40, 0x18, 0x18, 0x18, 0x18,
+;  376			0x40, 0x40, 0x40, 0x27, 0x18, 0x18, 0x18, 0x18,
+;  377			0x40, 0x40, 0x27, 0x27, 0x16, 0x18, 0x18, 0x18,
+;  378			0x40, 0x40, 0x18, 0x18, 0x16, 0x16, 0x16, 0x16,
+;  379			0x40, 0x40, 0x18, 0x16, 0x16, 0x16, 0x16, 0x16,
+;  380			0x40, 0x18, 0x18, 0x16, 0x16, 0x16, 0x40, 0x16,
+;  381			0x40, 0x18, 0x40, 0x40, 0x40, 0x40, 0x18, 0x18,
+;  382			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x18, 0x18,
+;  383		};
+	LD	HL,IX
+	LD	BC,-530
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_8temp62
+	LD	BC,66
+	LDIR	
+;  384		uint8_t tile09[66] = { // small run 0 right 3
+;  385			8, 8,
+;  386			0x16, 0x18, 0x40, 0x27, 0x40, 0x40, 0x40, 0x40,
+;  387			0x18, 0x18, 0x27, 0x27, 0x27, 0x40, 0x40, 0x40,
+;  388			0x18, 0x18, 0x27, 0x27, 0x40, 0x40, 0x40, 0x40,
+;  389			0x16, 0x16, 0x16, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  390			0x16, 0x16, 0x16, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  391			0x16, 0x16, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  392			0x18, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  393			0x18, 0x18, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  394		};
+	LD	HL,IX
+	LD	BC,-596
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_9temp63
+	LD	BC,66
+	LDIR	
+;  395		
+;  396		uint8_t tile0a[66] = { // small run 1 right 0
+;  397			8, 8,
+;  398			0x40, 0x40, 0x40, 0x40, 0x40, 0x16, 0x16, 0x16,
+;  399			0x40, 0x40, 0x40, 0x40, 0x16, 0x16, 0x16, 0x16,
+;  400			0x40, 0x40, 0x40, 0x40, 0x18, 0x18, 0x18, 0x27,
+;  401			0x40, 0x40, 0x40, 0x18, 0x27, 0x18, 0x27, 0x27,
+;  402			0x40, 0x40, 0x40, 0x18, 0x27, 0x18, 0x18, 0x27,
+;  403			0x40, 0x40, 0x40, 0x18, 0x18, 0x27, 0x27, 0x27,
+;  404			0x40, 0x40, 0x40, 0x40, 0x40, 0x27, 0x27, 0x27,
+;  405			0x40, 0x40, 0x18, 0x18, 0x18, 0x18, 0x16, 0x16,
+;  406		};
+	LD	HL,IX
+	LD	BC,-662
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_10temp64
+	LD	BC,66
+	LDIR	
+;  407		//      tile01            small run 1 right 1
+;  408		uint8_t tile0b[66] = { // small run 1 right 2
+;  409			8, 8,
+;  410			0x27, 0x27, 0x18, 0x18, 0x18, 0x18, 0x16, 0x16,
+;  411			0x27, 0x27, 0x27, 0x40, 0x18, 0x18, 0x16, 0x27,
+;  412			0x27, 0x27, 0x40, 0x40, 0x16, 0x16, 0x16, 0x16,
+;  413			0x40, 0x40, 0x40, 0x16, 0x16, 0x16, 0x16, 0x16,
+;  414			0x40, 0x40, 0x16, 0x16, 0x16, 0x16, 0x16, 0x16,
+;  415			0x40, 0x18, 0x18, 0x16, 0x16, 0x16, 0x40, 0x40,
+;  416			0x40, 0x18, 0x18, 0x18, 0x40, 0x40, 0x40, 0x40,
+;  417			0x40, 0x40, 0x18, 0x18, 0x18, 0x40, 0x40, 0x40,
+;  418		};
+	LD	HL,IX
+	LD	BC,-728
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_11temp65
+	LD	BC,66
+	LDIR	
+;  419		uint8_t tile0c[66] = { // small run 1 right 3
+;  420			8, 8,
+;  421			0x16, 0x18, 0x18, 0x18, 0x27, 0x27, 0x27, 0x40,
+;  422			0x16, 0x16, 0x16, 0x18, 0x18, 0x27, 0x27, 0x40,
+;  423			0x16, 0x16, 0x16, 0x40, 0x40, 0x18, 0x40, 0x40,
+;  424			0x16, 0x16, 0x16, 0x16, 0x18, 0x18, 0x40, 0x40,
+;  425			0x16, 0x16, 0x16, 0x16, 0x18, 0x18, 0x40, 0x40,
+;  426			0x40, 0x16, 0x16, 0x16, 0x18, 0x18, 0x40, 0x40,
+;  427			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  428			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  429		};
+	LD	HL,IX
+	LD	BC,-794
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_12temp66
+	LD	BC,66
+	LDIR	
+;  430		
+;  431		//      tile00            small run 2 right 0
+;  432		//      tile01            small run 2 right 1
+;  433		uint8_t tile0d[66] = { // small run 2 right 2
+;  434			8, 8,
+;  435			0x40, 0x40, 0x40, 0x18, 0x18, 0x18, 0x18, 0x16,
+;  436			0x40, 0x40, 0x40, 0x18, 0x18, 0x18, 0x16, 0x16,
+;  437			0x40, 0x40, 0x40, 0x18, 0x18, 0x18, 0x18, 0x16,
+;  438			0x40, 0x40, 0x40, 0x16, 0x18, 0x18, 0x27, 0x27,
+;  439			0x40, 0x40, 0x40, 0x40, 0x16, 0x18, 0x27, 0x27,
+;  440			0x40, 0x40, 0x40, 0x40, 0x40, 0x16, 0x16, 0x16,
+;  441			0x40, 0x40, 0x40, 0x40, 0x40, 0x18, 0x18, 0x18,
+;  442			0x40, 0x40, 0x40, 0x40, 0x40, 0x18, 0x18, 0x18,
+;  443		};
+	LD	HL,IX
+	LD	BC,-860
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_13temp67
+	LD	BC,66
+	LDIR	
+;  444		uint8_t tile0e[66] = { // small run 2 right 3
+;  445			8, 8,
+;  446			0x16, 0x18, 0x18, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  447			0x27, 0x16, 0x16, 0x27, 0x40, 0x40, 0x40, 0x40,
+;  448			0x16, 0x16, 0x16, 0x16, 0x40, 0x40, 0x40, 0x40,
+;  449			0x27, 0x16, 0x16, 0x16, 0x40, 0x40, 0x40, 0x40,
+;  450			0x16, 0x16, 0x16, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  451			0x18, 0x18, 0x18, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  452			0x18, 0x18, 0x18, 0x18, 0x40, 0x40, 0x40, 0x40,
+;  453			0x18, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  454		};
+	LD	HL,IX
+	LD	BC,-926
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_14temp68
+	LD	BC,66
+	LDIR	
+;  455		
+;  456		uint8_t tile0f[66] = { // small run 0 left 0
+;  457			8, 8,
+;  458			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  459			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x16, 0x16,
+;  460			0x40, 0x40, 0x40, 0x16, 0x16, 0x16, 0x16, 0x16,
+;  461			0x40, 0x40, 0x40, 0x40, 0x40, 0x27, 0x18, 0x27,
+;  462			0x40, 0x40, 0x40, 0x27, 0x27, 0x27, 0x18, 0x27,
+;  463			0x40, 0x40, 0x27, 0x27, 0x27, 0x18, 0x27, 0x27,
+;  464			0x40, 0x40, 0x40, 0x18, 0x18, 0x18, 0x18, 0x27,
+;  465			0x40, 0x40, 0x40, 0x40, 0x27, 0x27, 0x27, 0x27,
+;  466		};
+	LD	HL,IX
+	LD	BC,-992
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_15temp69
+	LD	BC,66
+	LDIR	
+;  467		uint8_t tile10[66] = { // small run 0 left 1
+;  468			8, 8,	
+;  469			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  470			0x16, 0x16, 0x16, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  471			0x16, 0x16, 0x16, 0x16, 0x40, 0x40, 0x40, 0x40,
+;  472			0x27, 0x18, 0x18, 0x18, 0x40, 0x40, 0x40, 0x40,
+;  473			0x27, 0x27, 0x18, 0x27, 0x18, 0x40, 0x40, 0x40,
+;  474			0x27, 0x18, 0x18, 0x27, 0x18, 0x40, 0x40, 0x40,
+;  475			0x27, 0x27, 0x27, 0x18, 0x18, 0x40, 0x40, 0x40,
+;  476			0x27, 0x27, 0x27, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  477		};
+	LD	HL,IX
+	LD	BC,-1058
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_16temp70
+	LD	BC,66
+	LDIR	
+;  478		uint8_t tile11[66] = { // small run 0 left 2
+;  479			8, 8,	
+;  480			0x40, 0x40, 0x40, 0x40, 0x27, 0x40, 0x18, 0x16,
+;  481			0x40, 0x40, 0x40, 0x27, 0x27, 0x27, 0x18, 0x18,
+;  482			0x40, 0x40, 0x40, 0x40, 0x27, 0x27, 0x18, 0x18,
+;  483			0x40, 0x40, 0x40, 0x40, 0x40, 0x16, 0x16, 0x16,
+;  484			0x40, 0x40, 0x40, 0x40, 0x40, 0x16, 0x16, 0x16,
+;  485			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x16, 0x16,
+;  486			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x18,
+;  487			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x18, 0x18,
+;  488		};
+	LD	HL,IX
+	LD	BC,-1124
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_17temp71
+	LD	BC,66
+	LDIR	
+;  489		uint8_t tile12[66] = { // small run 0 left 3
+;  490			8, 8,
+;  491			0x18, 0x18, 0x18, 0x18, 0x40, 0x40, 0x40, 0x40,
+;  492			0x18, 0x18, 0x18, 0x18, 0x27, 0x40, 0x40, 0x40,
+;  493			0x18, 0x18, 0x18, 0x16, 0x27, 0x27, 0x40, 0x40,
+;  494			0x16, 0x16, 0x16, 0x16, 0x18, 0x18, 0x40, 0x40,
+;  495			0x16, 0x16, 0x16, 0x16, 0x16, 0x18, 0x40, 0x40,
+;  496			0x16, 0x40, 0x16, 0x16, 0x16, 0x18, 0x18, 0x40,
+;  497			0x18, 0x18, 0x40, 0x40, 0x40, 0x40, 0x18, 0x40,
+;  498			0x18, 0x18, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  499		};
+	LD	HL,IX
+	LD	BC,-1190
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_18temp72
+	LD	BC,66
+	LDIR	
+;  500		
+;  501		//      tile04            small run 1 left 1
+;  502		uint8_t tile13[66] = { // small run 1 left 0
+;  503			8, 8,
+;  504			0x16, 0x16, 0x16, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  505			0x16, 0x16, 0x16, 0x16, 0x40, 0x40, 0x40, 0x40,
+;  506			0x27, 0x18, 0x18, 0x18, 0x40, 0x40, 0x40, 0x40,
+;  507			0x27, 0x27, 0x18, 0x27, 0x18, 0x40, 0x40, 0x40,
+;  508			0x27, 0x18, 0x18, 0x27, 0x18, 0x40, 0x40, 0x40,
+;  509			0x27, 0x27, 0x27, 0x18, 0x18, 0x40, 0x40, 0x40,
+;  510			0x27, 0x27, 0x27, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  511			0x16, 0x16, 0x18, 0x18, 0x18, 0x18, 0x40, 0x40,
+;  512		};
+	LD	HL,IX
+	LD	BC,-1256
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_19temp73
+	LD	BC,66
+	LDIR	
+;  513		uint8_t tile14[66] = { // small run 1 left 2
+;  514			8, 8,
+;  515			0x40, 0x27, 0x27, 0x27, 0x18, 0x18, 0x18, 0x16,
+;  516			0x40, 0x27, 0x27, 0x18, 0x18, 0x16, 0x16, 0x16,
+;  517			0x40, 0x40, 0x18, 0x40, 0x40, 0x16, 0x16, 0x16,
+;  518			0x40, 0x40, 0x18, 0x18, 0x16, 0x16, 0x16, 0x16,
+;  519			0x40, 0x40, 0x18, 0x18, 0x16, 0x16, 0x16, 0x16,
+;  520			0x40, 0x40, 0x18, 0x18, 0x16, 0x16, 0x16, 0x40,
+;  521			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  522			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  523		};
+	LD	HL,IX
+	LD	BC,-1322
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_20temp74
+	LD	BC,66
+	LDIR	
+;  524		uint8_t tile15[66] = { // small run 1 left 3
+;  525			8, 8,
+;  526			0x16, 0x16, 0x18, 0x18, 0x18, 0x18, 0x27, 0x27,
+;  527			0x27, 0x16, 0x18, 0x18, 0x40, 0x27, 0x27, 0x27,
+;  528			0x16, 0x16, 0x16, 0x16, 0x40, 0x40, 0x27, 0x27,
+;  529			0x16, 0x16, 0x16, 0x16, 0x16, 0x40, 0x40, 0x40,
+;  530			0x16, 0x16, 0x16, 0x16, 0x16, 0x16, 0x40, 0x40,
+;  531			0x40, 0x40, 0x16, 0x16, 0x16, 0x18, 0x18, 0x40,
+;  532			0x40, 0x40, 0x40, 0x40, 0x18, 0x18, 0x18, 0x40,
+;  533			0x40, 0x40, 0x40, 0x18, 0x18, 0x18, 0x40, 0x40,
+;  534		};
+	LD	HL,IX
+	LD	BC,-1388
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_21temp75
+	LD	BC,66
+	LDIR	
+;  535		
+;  536		//      tile04            small run 2 left 0
+;  537		//      tile05            small run 2 left 1
+;  538		uint8_t tile16[66] = { // small run 2 left 2
+;  539			8, 8,
+;  540			0x40, 0x40, 0x40, 0x40, 0x40, 0x18, 0x18, 0x16,
+;  541			0x40, 0x40, 0x40, 0x40, 0x27, 0x16, 0x16, 0x27,
+;  542			0x40, 0x40, 0x40, 0x40, 0x16, 0x16, 0x16, 0x16,
+;  543			0x40, 0x40, 0x40, 0x40, 0x16, 0x16, 0x16, 0x27,
+;  544			0x40, 0x40, 0x40, 0x40, 0x40, 0x16, 0x16, 0x16,
+;  545			0x40, 0x40, 0x40, 0x40, 0x40, 0x18, 0x18, 0x18,
+;  546			0x40, 0x40, 0x40, 0x40, 0x18, 0x18, 0x18, 0x18,
+;  547			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x18,
+;  548		};
+	LD	HL,IX
+	LD	BC,-1454
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_22temp76
+	LD	BC,66
+	LDIR	
+;  549		uint8_t tile17[66] = { // small run 2 left 3
+;  550			8, 8,
+;  551			0x16, 0x18, 0x18, 0x18, 0x18, 0x40, 0x40, 0x40,
+;  552			0x16, 0x16, 0x18, 0x18, 0x18, 0x40, 0x40, 0x40,
+;  553			0x16, 0x18, 0x18, 0x18, 0x18, 0x40, 0x40, 0x40,
+;  554			0x27, 0x27, 0x18, 0x18, 0x16, 0x40, 0x40, 0x40,
+;  555			0x27, 0x27, 0x18, 0x16, 0x40, 0x40, 0x40, 0x40,
+;  556			0x16, 0x16, 0x16, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  557			0x18, 0x18, 0x18, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  558			0x18, 0x18, 0x18, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  559		};
+	LD	HL,IX
+	LD	BC,-1520
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_23temp77
+	LD	BC,66
+	LDIR	
+;  560		
+;  561		uint8_t tile18[66] = { // small skid right 0
+;  562			8, 8,
+;  563			0x40, 0x40, 0x40, 0x40, 0x40, 0x16, 0x16, 0x16,
+;  564			0x40, 0x40, 0x40, 0x18, 0x16, 0x16, 0x16, 0x16,
+;  565			0x40, 0x40, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18,
+;  566			0x40, 0x27, 0x27, 0x18, 0x27, 0x27, 0x18, 0x27,
+;  567			0x40, 0x27, 0x27, 0x18, 0x27, 0x27, 0x18, 0x18,
+;  568			0x40, 0x40, 0x27, 0x27, 0x18, 0x27, 0x27, 0x27,
+;  569			0x40, 0x40, 0x40, 0x16, 0x16, 0x16, 0x18, 0x18,
+;  570			0x40, 0x40, 0x16, 0x16, 0x27, 0x27, 0x27, 0x18,
+;  571		};
+	LD	HL,IX
+	LD	BC,-1586
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_24temp78
+	LD	BC,66
+	LDIR	
+;  572		uint8_t tile19[66] = { // small skid right 1
+;  573			8, 8,
+;  574			0x16, 0x16, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  575			0x16, 0x16, 0x16, 0x16, 0x40, 0x40, 0x40, 0x40,
+;  576			0x27, 0x18, 0x27, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  577			0x27, 0x27, 0x27, 0x27, 0x27, 0x40, 0x40, 0x40,
+;  578			0x27, 0x27, 0x18, 0x18, 0x27, 0x27, 0x40, 0x40,
+;  579			0x27, 0x27, 0x27, 0x18, 0x18, 0x40, 0x40, 0x40,
+;  580			0x18, 0x16, 0x27, 0x27, 0x40, 0x40, 0x40, 0x40,
+;  581			0x16, 0x16, 0x18, 0x18, 0x18, 0x40, 0x40, 0x40,
+;  582		};
+	LD	HL,IX
+	LD	BC,-1652
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_25temp79
+	LD	BC,66
+	LDIR	
+;  583		uint8_t tile1a[66] = { // small skid right 2
+;  584			8, 8,
+;  585			0x40, 0x40, 0x16, 0x18, 0x27, 0x27, 0x27, 0x18,
+;  586			0x40, 0x40, 0x16, 0x16, 0x16, 0x27, 0x27, 0x18,
+;  587			0x40, 0x40, 0x40, 0x16, 0x16, 0x16, 0x16, 0x16,
+;  588			0x40, 0x40, 0x40, 0x16, 0x18, 0x18, 0x18, 0x16,
+;  589			0x40, 0x40, 0x40, 0x40, 0x18, 0x18, 0x18, 0x18,
+;  590			0x40, 0x18, 0x40, 0x18, 0x16, 0x16, 0x18, 0x18,
+;  591			0x40, 0x18, 0x18, 0x18, 0x18, 0x18, 0x16, 0x40,
+;  592			0x40, 0x40, 0x18, 0x18, 0x18, 0x18, 0x40, 0x40,
+;  593		};
+	LD	HL,IX
+	LD	BC,-1718
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_26temp80
+	LD	BC,66
+	LDIR	
+;  594		uint8_t tile1b[66] = { // small skid right 3
+;  595			8, 8,
+;  596			0x18, 0x18, 0x18, 0x18, 0x18, 0x40, 0x40, 0x40,
+;  597			0x18, 0x18, 0x18, 0x18, 0x18, 0x40, 0x40, 0x40,
+;  598			0x18, 0x18, 0x18, 0x18, 0x40, 0x40, 0x40, 0x40,
+;  599			0x16, 0x16, 0x16, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  600			0x16, 0x16, 0x16, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  601			0x18, 0x16, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  602			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  603			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  604		};
+	LD	HL,IX
+	LD	BC,-1784
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_27temp81
+	LD	BC,66
+	LDIR	
+;  605		
+;  606		uint8_t tile1c[66] = { // small skid left 0
+;  607			8, 8,
+;  608			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x16, 0x16,
+;  609			0x40, 0x40, 0x40, 0x40, 0x16, 0x16, 0x16, 0x16,
+;  610			0x40, 0x40, 0x40, 0x40, 0x40, 0x27, 0x18, 0x27,
+;  611			0x40, 0x40, 0x40, 0x27, 0x27, 0x27, 0x27, 0x27,
+;  612			0x40, 0x40, 0x27, 0x27, 0x18, 0x18, 0x27, 0x27,
+;  613			0x40, 0x40, 0x40, 0x18, 0x18, 0x27, 0x27, 0x27,
+;  614			0x40, 0x40, 0x40, 0x40, 0x27, 0x27, 0x16, 0x18,
+;  615			0x40, 0x40, 0x40, 0x18, 0x18, 0x18, 0x16, 0x16,
+;  616		};
+	LD	HL,IX
+	LD	BC,-1850
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_28temp82
+	LD	BC,66
+	LDIR	
+;  617		uint8_t tile1d[66] = { // small skid left 1
+;  618			8, 8,
+;  619			0x16, 0x16, 0x16, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  620			0x16, 0x16, 0x16, 0x16, 0x18, 0x40, 0x40, 0x40,
+;  621			0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0x40, 0x40,
+;  622			0x27, 0x18, 0x27, 0x27, 0x18, 0x27, 0x27, 0x40,
+;  623			0x18, 0x18, 0x27, 0x27, 0x18, 0x27, 0x27, 0x40,
+;  624			0x27, 0x27, 0x27, 0x18, 0x27, 0x27, 0x40, 0x40,
+;  625			0x18, 0x18, 0x16, 0x16, 0x16, 0x40, 0x40, 0x40,
+;  626			0x18, 0x27, 0x27, 0x27, 0x16, 0x16, 0x40, 0x40,
+;  627		};
+	LD	HL,IX
+	LD	BC,-1916
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_29temp83
+	LD	BC,66
+	LDIR	
+;  628		uint8_t tile1e[66] = { // small skid left 2
+;  629			8, 8,
+;  630			0x40, 0x40, 0x40, 0x18, 0x18, 0x18, 0x18, 0x18,
+;  631			0x40, 0x40, 0x40, 0x18, 0x18, 0x18, 0x18, 0x18,
+;  632			0x40, 0x40, 0x40, 0x40, 0x18, 0x18, 0x18, 0x18,
+;  633			0x40, 0x40, 0x40, 0x40, 0x40, 0x16, 0x16, 0x16,
+;  634			0x40, 0x40, 0x40, 0x40, 0x40, 0x16, 0x16, 0x16,
+;  635			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x16, 0x18,
+;  636			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  637			0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
+;  638		};
+	LD	HL,IX
+	LD	BC,-1982
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_30temp84
+	LD	BC,66
+	LDIR	
+;  639		uint8_t tile1f[66] = { // small skid left 3
+;  640			8, 8,
+;  641			0x18, 0x27, 0x27, 0x27, 0x18, 0x16, 0x40, 0x40,
+;  642			0x18, 0x27, 0x27, 0x16, 0x16, 0x16, 0x40, 0x40,
+;  643			0x16, 0x16, 0x16, 0x16, 0x16, 0x40, 0x40, 0x40,
+;  644			0x16, 0x18, 0x18, 0x18, 0x16, 0x40, 0x40, 0x40,
+;  645			0x18, 0x18, 0x18, 0x18, 0x40, 0x40, 0x40, 0x40,
+;  646			0x18, 0x18, 0x16, 0x16, 0x18, 0x40, 0x18, 0x40,
+;  647			0x40, 0x16, 0x18, 0x18, 0x18, 0x18, 0x18, 0x40,
+;  648			0x40, 0x40, 0x18, 0x18, 0x18, 0x18, 0x40, 0x40,
+;  649		};
+	LD	HL,IX
+	LD	BC,-2048
+	ADD	HL,BC
+	LD	DE,HL
+	LD	HL,_31temp85
+	LD	BC,66
+	LDIR	
+;  650		
+;  651		uint16_t i;
+;  652		
+;  653		for(i = 0; i < 66; i++) {sprites[0x00][i] = tile00[i];} // small idle right
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_89
+L_87:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	PUSH	BC
+	PUSH	HL
+	LD	HL,BC
+	LD	BC,-2120	; spill
+	CALL	__istix
+	POP	HL
+	POP	BC
+	LD	HL,IX
+	LD	BC,(IX+-2)
+	LD	DE,-2114
+	ADD	HL,DE
+	PUSH	BC
+	PUSH	HL
+	LD	HL,BC
+	LD	BC,-2117	; spill
+	CALL	__istix
+	POP	HL
+	POP	BC
+	LD	BC,-2120	; unspill
+	PUSH	HL
+	CALL	__ildix
+	LD	BC,HL
+	POP	HL
+	ADD	HL,BC
+	LD	BC,-2117	; unspill
+	PUSH	HL
+	CALL	__ildix
+	LD	BC,HL
+	POP	HL
+	LD	A,(HL)
+	CALL	__stoiu
+	LD	BC,_sprites
+	ADD	HL,BC
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_89:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_87
+;  654		for(i = 0; i < 66; i++) {sprites[0x01][i] = tile01[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_93
+L_91:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,HL
+	LEA	HL,IX+-68
+	ADD	HL,BC
+	PUSH	BC
+	LD	BC,-2126	; spill
+	CALL	__istix
+	POP	BC
+	LD	BC,(IX+-2)
+	LD	DE,_sprites+66
+	CALL	__stoiu
+	ADD	HL,DE
+	PUSH	BC
+	LD	BC,-2123	; spill
+	CALL	__istix
+	LD	BC,-2126	; unspill
+	CALL	__ildix
+	POP	BC
+	LD	A,(HL)
+	PUSH	BC
+	LD	BC,-2123	; unspill
+	CALL	__ildix
+	POP	BC
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_93:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_91
+;  655		for(i = 0; i < 66; i++) {sprites[0x02][i] = tile02[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_98
+L_96:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-134
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,132
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_98:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_96
+;  656		for(i = 0; i < 66; i++) {sprites[0x03][i] = tile03[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_103
+L_101:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-200
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,198
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_103:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_101
+;  657		
+;  658		for(i = 0; i < 66; i++) {sprites[0x04][i] = tile04[i];} // small idle left
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_108
+L_106:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-266
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,264
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_108:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_106
+;  659		for(i = 0; i < 66; i++) {sprites[0x05][i] = tile05[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_113
+L_111:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-332
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,330
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_113:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_111
+;  660		
+;  661		for(i = 0; i < 66; i++) {sprites[0x06][i] = tile06[i];} // small run 0 right
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_118
+L_116:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-398
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,396
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_118:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_116
+;  662		for(i = 0; i < 66; i++) {sprites[0x07][i] = tile07[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_123
+L_121:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-464
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,462
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_123:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_121
+;  663		for(i = 0; i < 66; i++) {sprites[0x08][i] = tile08[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_128
+L_126:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-530
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,528
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_128:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_126
+;  664		for(i = 0; i < 66; i++) {sprites[0x09][i] = tile09[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_133
+L_131:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-596
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,594
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_133:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_131
+;  665		
+;  666		for(i = 0; i < 66; i++) {sprites[0x0a][i] = tile0a[i];} // small run 1 right
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_138
+L_136:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-662
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,660
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_138:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_136
+;  667		for(i = 0; i < 66; i++) {sprites[0x0b][i] = tile0b[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_143
+L_141:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-728
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,726
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_143:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_141
+;  668		for(i = 0; i < 66; i++) {sprites[0x0c][i] = tile0c[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_148
+L_146:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-794
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,792
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_148:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_146
+;  669		
+;  670		for(i = 0; i < 66; i++) {sprites[0x0d][i] = tile0d[i];} // small run 2 right
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_153
+L_151:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-860
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,858
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_153:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_151
+;  671		for(i = 0; i < 66; i++) {sprites[0x0e][i] = tile0e[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_158
+L_156:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-926
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,924
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_158:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_156
+;  672		
+;  673		for(i = 0; i < 66; i++) {sprites[0x0f][i] = tile0f[i];} // small run 0 left
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_163
+L_161:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-992
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,990
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_163:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_161
+;  674		for(i = 0; i < 66; i++) {sprites[0x10][i] = tile10[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_168
+L_166:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-1058
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,1056
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_168:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_166
+;  675		for(i = 0; i < 66; i++) {sprites[0x11][i] = tile11[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_173
+L_171:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-1124
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,1122
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_173:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_171
+;  676		for(i = 0; i < 66; i++) {sprites[0x12][i] = tile12[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_178
+L_176:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-1190
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,1188
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_178:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_176
+;  677		
+;  678		for(i = 0; i < 66; i++) {sprites[0x13][i] = tile13[i];} // small run 1 left
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_183
+L_181:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-1256
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,1254
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_183:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_181
+;  679		for(i = 0; i < 66; i++) {sprites[0x14][i] = tile14[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_188
+L_186:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-1322
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,1320
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_188:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_186
+;  680		for(i = 0; i < 66; i++) {sprites[0x15][i] = tile15[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_193
+L_191:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-1388
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,1386
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_193:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_191
+;  681		
+;  682		for(i = 0; i < 66; i++) {sprites[0x16][i] = tile16[i];} // small run 2 left
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_198
+L_196:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-1454
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,1452
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_198:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_196
+;  683		for(i = 0; i < 66; i++) {sprites[0x17][i] = tile17[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_203
+L_201:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-1520
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,1518
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_203:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_201
+;  684		
+;  685		for(i = 0; i < 66; i++) {sprites[0x18][i] = tile18[i];} // small skid right
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_208
+L_206:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-1586
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,1584
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_208:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_206
+;  686		for(i = 0; i < 66; i++) {sprites[0x19][i] = tile19[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_213
+L_211:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-1652
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,1650
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_213:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_211
+;  687		for(i = 0; i < 66; i++) {sprites[0x1a][i] = tile1a[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_218
+L_216:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-1718
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,1716
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_218:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_216
+;  688		for(i = 0; i < 66; i++) {sprites[0x1b][i] = tile1b[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_223
+L_221:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-1784
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,1782
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_223:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_221
+;  689		
+;  690		for(i = 0; i < 66; i++) {sprites[0x1c][i] = tile1c[i];} // small skid left
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_228
+L_226:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-1850
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,1848
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_228:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_226
+;  691		for(i = 0; i < 66; i++) {sprites[0x1d][i] = tile1d[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_233
+L_231:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-1916
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,1914
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_233:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_231
+;  692		for(i = 0; i < 66; i++) {sprites[0x1e][i] = tile1e[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_238
+L_236:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-1982
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,1980
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_238:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_236
+;  693		for(i = 0; i < 66; i++) {sprites[0x1f][i] = tile1f[i];}
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_243
+L_241:
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	HL,IX
+	LD	BC,-2048
+	ADD	HL,BC
+	ADD	HL,DE
+	LD	IY,HL
+	LD	HL,_sprites
+	LD	BC,2046
+	ADD	HL,BC
+	LD	DE,HL
+	LD	A,(IY)
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(HL),A
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_243:
+	LD.LIS	BC,66
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_241
+;  694	}
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _copySprites ***************************
+;Name                         Addr/Register   Size   Type
+;_sprites                            STATIC  16896   variable
+;_31temp85                           STATIC     66   variable
+;_30temp84                           STATIC     66   variable
+;_29temp83                           STATIC     66   variable
+;_28temp82                           STATIC     66   variable
+;_27temp81                           STATIC     66   variable
+;_26temp80                           STATIC     66   variable
+;_25temp79                           STATIC     66   variable
+;_24temp78                           STATIC     66   variable
+;_23temp77                           STATIC     66   variable
+;_22temp76                           STATIC     66   variable
+;_21temp75                           STATIC     66   variable
+;_20temp74                           STATIC     66   variable
+;_19temp73                           STATIC     66   variable
+;_18temp72                           STATIC     66   variable
+;_17temp71                           STATIC     66   variable
+;_16temp70                           STATIC     66   variable
+;_15temp69                           STATIC     66   variable
+;_14temp68                           STATIC     66   variable
+;_13temp67                           STATIC     66   variable
+;_12temp66                           STATIC     66   variable
+;_11temp65                           STATIC     66   variable
+;_10temp64                           STATIC     66   variable
+;_9temp63                            STATIC     66   variable
+;_8temp62                            STATIC     66   variable
+;_7temp61                            STATIC     66   variable
+;_6temp60                            STATIC     66   variable
+;_5temp59                            STATIC     66   variable
+;_4temp58                            STATIC     66   variable
+;_3temp57                            STATIC     66   variable
+;_2temp56                            STATIC     66   variable
+;_1temp55                            STATIC     66   variable
+;_0temp54                            STATIC     66   variable
+;tile00                             IX-2114     66   variable
+;tile1f                             IX-2048     66   variable
+;tile1e                             IX-1982     66   variable
+;tile1d                             IX-1916     66   variable
+;tile1c                             IX-1850     66   variable
+;tile1b                             IX-1784     66   variable
+;tile1a                             IX-1718     66   variable
+;tile19                             IX-1652     66   variable
+;tile18                             IX-1586     66   variable
+;tile17                             IX-1520     66   variable
+;tile16                             IX-1454     66   variable
+;tile15                             IX-1388     66   variable
+;tile14                             IX-1322     66   variable
+;tile13                             IX-1256     66   variable
+;tile12                             IX-1190     66   variable
+;tile11                             IX-1124     66   variable
+;tile10                             IX-1058     66   variable
+;tile0f                              IX-992     66   variable
+;tile0e                              IX-926     66   variable
+;tile0d                              IX-860     66   variable
+;tile0c                              IX-794     66   variable
+;tile0b                              IX-728     66   variable
+;tile0a                              IX-662     66   variable
+;tile09                              IX-596     66   variable
+;tile08                              IX-530     66   variable
+;tile07                              IX-464     66   variable
+;tile06                              IX-398     66   variable
+;tile05                              IX-332     66   variable
+;tile04                              IX-266     66   variable
+;tile03                              IX-200     66   variable
+;tile02                              IX-134     66   variable
+;tile01                               IX-68     66   variable
+;i                                     IX-2      2   variable
+
+
+; Stack Frame Size: 2132 (bytes)
+;       Spill Code: -18 (instruction)
+
+
+	SEGMENT TEXT
+_0temp54:
+	DB	8
+	DB	8
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	39
+	DB	24
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	39
+	DB	24
+	DB	24
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	39
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	22
+	DB	24
+_1temp55:
+	DB	8
+	DB	8
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	24
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	24
+	DB	39
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	24
+	DB	39
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	39
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_2temp56:
+	DB	8
+	DB	8
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	22
+	DB	24
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	24
+	DB	22
+	DB	39
+	DB	22
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	39
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+_3temp57:
+	DB	8
+	DB	8
+	DB	24
+	DB	22
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	22
+	DB	39
+	DB	22
+	DB	24
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	39
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+_4temp58:
+	DB	8
+	DB	8
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	24
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	39
+	DB	24
+	DB	39
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	39
+	DB	24
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+_5temp59:
+	DB	8
+	DB	8
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	24
+	DB	39
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	24
+	DB	24
+	DB	39
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	39
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	22
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_6temp60:
+	DB	8
+	DB	8
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	39
+	DB	24
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	39
+	DB	24
+	DB	24
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	39
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	39
+_7temp61:
+	DB	8
+	DB	8
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	24
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	24
+	DB	39
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	24
+	DB	39
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	39
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_8temp62:
+	DB	8
+	DB	8
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	22
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	24
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	24
+	DB	24
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	22
+	DB	64
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+_9temp63:
+	DB	8
+	DB	8
+	DB	22
+	DB	24
+	DB	64
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	39
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_10temp64:
+	DB	8
+	DB	8
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	39
+	DB	24
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	39
+	DB	24
+	DB	24
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	39
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	22
+	DB	22
+_11temp65:
+	DB	8
+	DB	8
+	DB	39
+	DB	39
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	22
+	DB	22
+	DB	39
+	DB	39
+	DB	39
+	DB	64
+	DB	24
+	DB	24
+	DB	22
+	DB	39
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	24
+	DB	24
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+_12temp66:
+	DB	8
+	DB	8
+	DB	22
+	DB	24
+	DB	24
+	DB	24
+	DB	39
+	DB	39
+	DB	39
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	24
+	DB	24
+	DB	39
+	DB	39
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	24
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_13temp67:
+	DB	8
+	DB	8
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	24
+	DB	24
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	24
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+_14temp68:
+	DB	8
+	DB	8
+	DB	22
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	22
+	DB	22
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_15temp69:
+	DB	8
+	DB	8
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	24
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	39
+	DB	24
+	DB	39
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	39
+	DB	24
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	39
+	DB	39
+_16temp70:
+	DB	8
+	DB	8
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	24
+	DB	39
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	24
+	DB	24
+	DB	39
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	39
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_17temp71:
+	DB	8
+	DB	8
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	64
+	DB	24
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	39
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+_18temp72:
+	DB	8
+	DB	8
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	22
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	24
+	DB	64
+	DB	64
+	DB	22
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	24
+	DB	24
+	DB	64
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	64
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_19temp73:
+	DB	8
+	DB	8
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	24
+	DB	39
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	24
+	DB	24
+	DB	39
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	39
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+_20temp74:
+	DB	8
+	DB	8
+	DB	64
+	DB	39
+	DB	39
+	DB	39
+	DB	24
+	DB	24
+	DB	24
+	DB	22
+	DB	64
+	DB	39
+	DB	39
+	DB	24
+	DB	24
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	24
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_21temp75:
+	DB	8
+	DB	8
+	DB	22
+	DB	22
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	39
+	DB	39
+	DB	39
+	DB	22
+	DB	24
+	DB	24
+	DB	64
+	DB	39
+	DB	39
+	DB	39
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+_22temp76:
+	DB	8
+	DB	8
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	22
+	DB	22
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+_23temp77:
+	DB	8
+	DB	8
+	DB	22
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	24
+	DB	24
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	24
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_24temp78:
+	DB	8
+	DB	8
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	39
+	DB	39
+	DB	24
+	DB	39
+	DB	39
+	DB	24
+	DB	39
+	DB	64
+	DB	39
+	DB	39
+	DB	24
+	DB	39
+	DB	39
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	24
+	DB	39
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	39
+	DB	39
+	DB	39
+	DB	24
+_25temp79:
+	DB	8
+	DB	8
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	24
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	39
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	24
+	DB	24
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	39
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	22
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+_26temp80:
+	DB	8
+	DB	8
+	DB	64
+	DB	64
+	DB	22
+	DB	24
+	DB	39
+	DB	39
+	DB	39
+	DB	24
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	39
+	DB	39
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	24
+	DB	24
+	DB	24
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	24
+	DB	64
+	DB	24
+	DB	22
+	DB	22
+	DB	24
+	DB	24
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+_27temp81:
+	DB	8
+	DB	8
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_28temp82:
+	DB	8
+	DB	8
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	24
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	39
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	24
+	DB	24
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	39
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	39
+	DB	39
+	DB	22
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	22
+	DB	22
+_29temp83:
+	DB	8
+	DB	8
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	39
+	DB	24
+	DB	39
+	DB	39
+	DB	24
+	DB	39
+	DB	39
+	DB	64
+	DB	24
+	DB	24
+	DB	39
+	DB	39
+	DB	24
+	DB	39
+	DB	39
+	DB	64
+	DB	39
+	DB	39
+	DB	39
+	DB	24
+	DB	39
+	DB	39
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	39
+	DB	39
+	DB	39
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+_30temp84:
+	DB	8
+	DB	8
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+_31temp85:
+	DB	8
+	DB	8
+	DB	24
+	DB	39
+	DB	39
+	DB	39
+	DB	24
+	DB	22
+	DB	64
+	DB	64
+	DB	24
+	DB	39
+	DB	39
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	22
+	DB	24
+	DB	24
+	DB	24
+	DB	22
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	22
+	DB	22
+	DB	24
+	DB	64
+	DB	24
+	DB	64
+	DB	64
+	DB	22
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	DB	64
+	DB	24
+	DB	24
+	DB	24
+	DB	24
+	DB	64
+	DB	64
+	SEGMENT CODE
+;  695	
+;  696	void updateMario() {
+_updateMario:
+	LD	HL,-14
+	CALL	__frameset
+;  697		checkMarioGround();
+	CALL	_checkMarioGround
+;  698		
+;  699		if(left && !right) {
+	LD	A,(_left)
+	OR	A,A
+	JR	Z,L_260
+	LD	A,(_right)
+	OR	A,A
+	JR	NZ,L_260
+;  700			if(dx > 0) {
+	LD	BC,(_dx)
+	OR	A,A
+	SBC	HL,HL
+	OR	A,A
+	SBC.SIS	HL,BC
+	JP	P,L_248
+;  701				dx -= 0x34;
+	LD	IY,(_dx)
+	LEA	BC,IY+-52
+	LD	HL,_dx
+	LD	(HL),C
+	INC	HL
+	LD	(HL),B
+;  702				marioState = 2;
+	LD	A,2
+	LD	(_marioState),A
+;  703			}
+;  704			else {
+	JR	L_250
+L_248:
+;  705				dx -= 0x13;
+	LD	IY,(_dx)
+	LEA	BC,IY+-19
+	LD	HL,_dx
+	LD	(HL),C
+	INC	HL
+	LD	(HL),B
+;  706				marioState = 1;
+	LD	A,1
+	LD	(_marioState),A
+;  707			}
+L_250:
+;  708			if(dx < -0x320) {dx = -0x320;}
+	LD.LIS	BC,-800
+	LD	HL,(_dx)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JP	P,L__95
+	JP	PE,L_251
+	JR	L__96
+L__95:
+	JP	PO,L_251
+L__96:
+	LD	HL,_dx
+	LD	(HL),224
+	INC	HL
+	LD	(HL),252
+L_251:
+;  709			
+;  710			direction = 1;
+	LD	A,1
+	LD	(_direction),A
+;  711		}
+L_260:
+;  712		if(!left && right) {
+	LD	A,(_left)
+	OR	A,A
+	JR	NZ,L_273
+	LD	A,(_right)
+	OR	A,A
+	JR	Z,L_273
+;  713			if(dx < 0) {
+	LD	HL,(_dx)
+	CALL	__scmpzero
+	JP	P,L_255
+;  714				dx += 0x34;
+	LD	IY,(_dx)
+	LEA	BC,IY+52
+	LD	HL,_dx
+	LD	(HL),C
+	INC	HL
+	LD	(HL),B
+;  715				marioState = 2;
+	LD	A,2
+	LD	(_marioState),A
+;  716			}
+;  717			else {
+	JR	L_257
+L_255:
+;  718				dx += 0x13;
+	LD	IY,(_dx)
+	LEA	BC,IY+19
+	LD	HL,_dx
+	LD	(HL),C
+	INC	HL
+	LD	(HL),B
+;  719				marioState = 1;
+	LD	A,1
+	LD	(_marioState),A
+;  720			}
+L_257:
+;  721			if(dx > 0x320) {dx = 0x320;}
+	LD	BC,(_dx)
+	LD.LIS	HL,800
+	OR	A,A
+	SBC.SIS	HL,BC
+	JP	P,L__97
+	JP	PE,L_258
+	JR	L__98
+L__97:
+	JP	PO,L_258
+L__98:
+	LD	HL,_dx
+	LD	(HL),32
+	INC	HL
+	LD	(HL),3
+L_258:
+;  722			
+;  723			direction = 0;
+	XOR	A,A
+	LD	(_direction),A
+;  724		}
+L_273:
+;  725		if(!left && !right || left && right) {
+	LD	A,(_left)
+	OR	A,A
+	JR	NZ,L_263
+	LD	A,(_right)
+	OR	A,A
+	JR	Z,L_272
+L_263:
+	LD	A,(_left)
+	OR	A,A
+	JR	Z,L_294
+	LD	A,(_right)
+	OR	A,A
+	JR	Z,L_294
+L_272:
+;  726			if(dx < -0x26) {
+	LD.LIS	BC,-38
+	LD	HL,(_dx)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JP	P,L_271
+;  727				if(marioState == 2) {dx += 0x34;}
+	LD	A,(_marioState)
+	CP	A,2
+	JR	NZ,L_265
+	LD	IY,(_dx)
+	LEA	BC,IY+52
+	LD	HL,_dx
+	LD	(HL),C
+	INC	HL
+	LD	(HL),B
+;  728				else {dx += 0x1a;}
+	JR	L_294
+L_265:
+	LD	IY,(_dx)
+	LEA	BC,IY+26
+	LD	HL,_dx
+	LD	(HL),C
+	INC	HL
+	LD	(HL),B
+;  729			}
+;  730			else if(dx > 0x26) {
+	JR	L_294
+L_271:
+	LD	BC,(_dx)
+	LD.LIS	HL,38
+	OR	A,A
+	SBC.SIS	HL,BC
+	JP	P,L__99
+	JP	PE,L_269
+	JR	L__100
+L__99:
+	JP	PO,L_269
+L__100:
+;  731				if(marioState == 2) {dx -= 0x34;}
+	LD	A,(_marioState)
+	CP	A,2
+	JR	NZ,L_267
+	LD	IY,(_dx)
+	LEA	BC,IY+-52
+	LD	HL,_dx
+	LD	(HL),C
+	INC	HL
+	LD	(HL),B
+;  732				else {dx -= 0x1a;}
+	JR	L_294
+L_267:
+	LD	IY,(_dx)
+	LEA	BC,IY+-26
+	LD	HL,_dx
+	LD	(HL),C
+	INC	HL
+	LD	(HL),B
+;  733			}
+;  734			else {
+	JR	L_294
+L_269:
+;  735				dx = 0;
+	LD	HL,_dx
+	LD	(HL),0
+	INC	HL
+	LD	(HL),0
+;  736				marioState = 0;
+	XOR	A,A
+	LD	(_marioState),A
+;  737			}
+;  738		}
+L_294:
+;  739		if(marioGround) {
+	LD	A,(_marioGround)
+	OR	A,A
+	JR	Z,L_293
+;  740			dy = 0;
+	LD	HL,_dy
+	LD	(HL),0
+	INC	HL
+	LD	(HL),0
+;  741			
+;  742			marioJumping = 0;
+	XOR	A,A
+	LD	(_marioJumping),A
+;  743			if(!up) {marioCanJump = 1;}
+	LD	A,(_up)
+	OR	A,A
+	JR	NZ,L_283
+	LD	A,1
+	LD	(_marioCanJump),A
+L_283:
+;  744			
+;  745			if(up && marioCanJump) {
+	LD	A,(_up)
+	OR	A,A
+	JR	Z,L_295
+	LD	A,(_marioCanJump)
+	OR	A,A
+	JR	Z,L_295
+;  746				marioJumping = 1;
+	LD	A,1
+	LD	(_marioJumping),A
+;  747				marioCanJump = 0;
+	XOR	A,A
+	LD	(_marioCanJump),A
+;  748				marioGround = 0;
+	XOR	A,A
+	LD	(_marioGround),A
+;  749				
+;  750				if(dx < 0x200) {
+	LD	HL,(_dx)
+	LD.LIS	BC,512
+	OR	A,A
+	SBC.SIS	HL,BC
+	JP	P,L_279
+;  751					dy = -0x400;
+	LD	HL,_dy
+	LD	(HL),0
+	INC	HL
+	LD	(HL),252
+;  752					marioGravity = 0x40;
+	LD	HL,_marioGravity
+	LD	(HL),64
+	INC	HL
+	LD	(HL),0
+;  753				}
+L_279:
+;  754				if(dx >= 0x200 && dx < 0x500) {
+	LD	HL,(_dx)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JP	M,L__101
+	JP	PE,L_281
+	JR	L__102
+L__101:
+	JP	PO,L_281
+L__102:
+	LD.LIS	BC,1280
+	LD	HL,(_dx)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JP	P,L__103
+	JP	PE,L_281
+	JR	L__104
+L__103:
+	JP	PO,L_281
+L__104:
+;  755					dy = -0x400;
+	LD	HL,_dy
+	LD	(HL),0
+	INC	HL
+	LD	(HL),252
+;  756					marioGravity = 0x3C;
+	LD	HL,_marioGravity
+	LD	(HL),60
+	INC	HL
+	LD	(HL),0
+;  757				}
+L_281:
+;  758				if(dx >= 0x500) {
+	LD.LIS	BC,1280
+	LD	HL,(_dx)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JP	M,L__105
+	JP	PE,L_295
+	JR	L__106
+L__105:
+	JP	PO,L_295
+L__106:
+;  759					dy = -0x500;
+	LD	HL,_dy
+	LD	(HL),0
+	INC	HL
+	LD	(HL),251
+;  760					marioGravity = 0x50;
+	LD	HL,_marioGravity
+	LD	(HL),80
+	INC	HL
+	LD	(HL),0
+;  761				}
+;  762			}
+;  763		}
+;  764		else {
+	JR	L_295
+L_293:
+;  765			if(marioJumping) {
+	LD	A,(_marioJumping)
+	OR	A,A
+	JR	Z,L_291
+;  766				if(!up) {
+	LD	A,(_up)
+	OR	A,A
+	JR	NZ,L_291
+;  767					if(marioGravity == 0x40) {marioGravity = 0xe0;}
+	LD.LIS	BC,64
+	LD	HL,(_marioGravity)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	NZ,L_286
+	LD	HL,_marioGravity
+	LD	(HL),224
+	INC	HL
+	LD	(HL),0
+L_286:
+;  768					if(marioGravity == 0x3C) {marioGravity = 0xc0;}
+	LD.LIS	BC,60
+	LD	HL,(_marioGravity)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	NZ,L_288
+	LD	HL,_marioGravity
+	LD	(HL),192
+	INC	HL
+	LD	(HL),0
+L_288:
+;  769					if(marioGravity == 0x50) {marioGravity = 0x120;}
+	LD.LIS	BC,80
+	LD	HL,(_marioGravity)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	NZ,L_291
+	LD	HL,_marioGravity
+	LD	(HL),32
+	INC	HL
+	LD	(HL),1
+;  770				}
+;  771			}
+L_291:
+;  772			
+;  773			dy += marioGravity;
+	LD	BC,(_dy)
+	LD	HL,(_marioGravity)
+	ADD.SIS	HL,BC
+	LD	BC,HL
+	LD	HL,_dy
+	LD	(HL),C
+	INC	HL
+	LD	(HL),B
+;  774		}
+L_295:
+;  775		
+;  776		mx += dx;
+	LD	A,(_dx+1)
+	RLA	
+	SBC	A,A
+	LD	(IX+-2),A
+	LD	BC,(_dx)
+	CALL	__stoi
+	LD	A,(_mx+3)
+	LD	E,A
+	LD	BC,HL
+	LD	HL,(_mx)
+	LD	A,(IX+-2)
+	CALL	__ladd
+	LD	(_mx),HL
+	LD	A,E
+	LD	(_mx+3),A
+;  777		my += dy;
+	LD	A,(_dy+1)
+	RLA	
+	SBC	A,A
+	LD	(IX+-1),A
+	LD	BC,(_dy)
+	CALL	__stoi
+	LD	A,(_my+3)
+	LD	E,A
+	LD	BC,HL
+	LD	HL,(_my)
+	LD	A,(IX+-1)
+	CALL	__ladd
+	LD	(_my),HL
+	LD	A,E
+	LD	(_my+3),A
+;  778		
+;  779		if(mx < (x + 24) * 128) {
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	IY,HL
+	LEA	HL,IY+24
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	BC,HL
+	CALL	__itol
+	LD	H,A
+	LD	A,(_mx+3)
+	LD	E,A
+	LD	A,H
+	LD	HL,(_mx)
+	CALL	__lcmpu
+	JR	NC,L_298
+;  780			dx = 0;
+	LD	HL,_dx
+	LD	(HL),0
+	INC	HL
+	LD	(HL),0
+;  781			mx = (x + 24) * 128;
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	E,0
+	LD	A,24
+	CALL	__ladd_b
+	XOR	A,A
+	LD	BC,128
+	CALL	__lmulu
+	LD	(_mx),HL
+	LD	A,E
+	LD	(_mx+3),A
+;  782		}
+L_298:
+;  783		if(mx > (width * 8 - 24) * 128) {
+	LD	BC,(_width)
+	CALL	__stoiu
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	IY,HL
+	LEA	HL,IY+-24
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	BC,HL
+	CALL	__itol
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	CALL	__lcmpu
+	JR	NC,L_300
+;  784			dx = 0;
+	LD	HL,_dx
+	LD	(HL),0
+	INC	HL
+	LD	(HL),0
+;  785			mx = (width * 8 - 24) * 128;
+	LD	BC,(_width)
+	CALL	__stoiu
+	LD	BC,8
+	LD	E,0
+	XOR	A,A
+	CALL	__lmulu
+	LD	BC,24
+	XOR	A,A
+	CALL	__lsub
+	LD	BC,128
+	XOR	A,A
+	CALL	__lmulu
+	LD	(_mx),HL
+	LD	A,E
+	LD	(_mx+3),A
+;  786		}
+L_300:
+;  787		
+;  788		//if(dx == 0 && marioState != 2) {marioState = 0;}
+;  789		
+;  790		if(floor(mx / 128) - x > 80) {x += floor(mx / 128) - x - 80;}
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-6),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	XOR	A,A
+	CALL	__ultof
+	LD	(IX+-3),E
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-6)
+	LD	A,(IX+-3)
+	CALL	__fsub
+	LD	HL,10485760
+	LD	E,66
+	CALL	__fcmp
+	JP	P,L_302
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	LD	L,7
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	(IX+-14),HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	(IX+-11),E
+	XOR	A,A
+	CALL	__ultof
+	LD	E,66
+	LD	HL,10485760
+	CALL	__fadd
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-14)
+	LD	A,(IX+-11)
+	CALL	__fsub
+	LD	(IX+-10),BC
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	(IX+-7),A
+	XOR	A,A
+	LD	BC,HL
+	CALL	__ultof
+	LD	E,A
+	LD	HL,BC
+	LD	BC,(IX+-10)
+	LD	A,(IX+-7)
+	CALL	__fadd
+	CALL	__ftol
+	LD	HL,_x
+	LD	(HL),C
+	INC	HL
+	LD	(HL),B
+L_302:
+;  791		if(x > width * 8 - 288) {x = width * 8 - 288;}
+	LD	BC,(_width)
+	CALL	__stoiu
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	BC,16776928
+	ADD	HL,BC
+	LD	DE,HL
+	LD	BC,(_x)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,DE
+	OR	A,A
+	SBC	HL,BC
+	JP	P,L_303
+	LD	HL,(_width)
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	OR	A,A
+	LD.LIS	DE,288
+	SBC.SIS	HL,DE
+	LD	BC,HL
+	LD	HL,_x
+	LD	(HL),C
+	INC	HL
+	LD	(HL),B
+;  792	}
+L_303:
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _updateMario ***************************
+;Name                         Addr/Register   Size   Type
+;_floor                              IMPORT  -----   function
+;_width                              IMPORT      2   variable
+;_x                                  IMPORT      2   variable
+;_my                                 IMPORT      4   variable
+;_mx                                 IMPORT      4   variable
+;_marioGravity                       STATIC      2   variable
+;_marioCanJump                       STATIC      1   variable
+;_up                                 STATIC      1   variable
+;_marioJumping                       STATIC      1   variable
+;_dy                                 STATIC      2   variable
+;_marioGround                        STATIC      1   variable
+;_direction                          STATIC      1   variable
+;_marioState                         STATIC      1   variable
+;_dx                                 STATIC      2   variable
+;_right                              STATIC      1   variable
+;_left                               STATIC      1   variable
+;_checkMarioGround                   IMPORT  -----   function
+
+
+; Stack Frame Size: 20 (bytes)
+;       Spill Code: -18 (instruction)
+
+
+;  793	
+;  794	void checkMarioGround() {
+_checkMarioGround:
+	LD	HL,-2
+	CALL	__frameset
+;  795		uint16_t i;
+;  796		
+;  797		marioGround = 0;
+	XOR	A,A
+	LD	(_marioGround),A
+;  798	
+;  799		for(i = 0; i < blocks; i++) {
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_309
+L_307:
+;  800			if(checkCollision(floor(mx / 128), 16, xBlocks[i] * 16, 16) && checkCollision(floor(my / 128) + 16, 1, yBlocks[i] * 16, 16)) {
+	LD	BC,16
+	PUSH	BC
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,HL
+	LD	BC,_xBlocks
+	ADD	HL,BC
+	LD	HL,(HL)
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	PUSH	HL
+	LD	L,7
+	LD	BC,(_mx)
+	LD	A,(_mx+3)
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	HL,16
+	PUSH	HL
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	CALL	__ftol
+	PUSH	BC
+	CALL	_checkCollision
+	POP	BC
+	POP	BC
+	POP	BC
+	POP	BC
+	OR	A,A
+	JR	Z,L_308
+	LD	BC,16
+	PUSH	BC
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,HL
+	LD	BC,_yBlocks
+	ADD	HL,BC
+	LD	HL,(HL)
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	PUSH	HL
+	LD	L,7
+	LD	BC,(_my)
+	LD	A,(_my+3)
+	CALL	__lshru
+	CALL	__ultof
+	LD	DE,BC
+	LD	C,A
+	LD	HL,1
+	PUSH	HL
+	LD	B,0
+	PUSH	BC
+	PUSH	DE
+	CALL	_floor
+	POP	BC
+	POP	BC
+	LD	A,E
+	LD	BC,HL
+	LD	HL,8388608
+	LD	E,65
+	CALL	__fadd
+	CALL	__ftol
+	PUSH	BC
+	CALL	_checkCollision
+	POP	BC
+	POP	BC
+	POP	BC
+	POP	BC
+	OR	A,A
+	JR	Z,L_308
+;  801				marioGround = 1;
+	LD	A,1
+	LD	(_marioGround),A
+;  802				break;
+	JR	L_310
+;  803			}
+;  804		}
+L_308:
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_309:
+	LD	BC,(_blocks)
+	LD	HL,(IX+-2)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_307
+;  805	}
+L_310:
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _checkMarioGround ***************************
+;Name                         Addr/Register   Size   Type
+;_blocks                             IMPORT      2   variable
+;_my                                 IMPORT      4   variable
+;_yBlocks                            IMPORT    160   variable
+;_mx                                 IMPORT      4   variable
+;_floor                              IMPORT  -----   function
+;_xBlocks                            IMPORT    160   variable
+;_checkCollision                     IMPORT  -----   function
+;_marioGround                        STATIC      1   variable
+;i                                     IX-2      2   variable
+
+
+; Stack Frame Size: 8 (bytes)
+;       Spill Code: -18 (instruction)
+
+
+;  806	
+;  807	bool checkCollision(uint16_t xy1, uint16_t wh1, uint16_t xy2, uint16_t wh2) {
+_checkCollision:
+	LD	HL,-3
+	CALL	__frameset
+;  808		if(xy1 >= xy2 && xy1 <= xy2 + wh2 || xy1 + wh1 >= xy2 && xy1 + wh1 <= xy2 + wh2) {return 1;}
+	LD	BC,(IX+12)
+	LD	HL,(IX+6)
+	OR	A,A
+	SBC.SIS	HL,BC
+	JR	C,L_313
+	LD	BC,(IX+12)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	BC,(IX+15)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	DE,HL
+	LD	BC,(IX+6)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,DE
+	OR	A,A
+	SBC	HL,BC
+	JP	P,L_314
+L_313:
+	LD	BC,(IX+6)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	BC,(IX+9)
+	CALL	__stoiu
+	ADD	HL,DE
+	LD	(IX+-3),HL
+	LD	BC,(IX+12)
+	CALL	__stoiu
+	LD	BC,HL
+	LD	HL,(IX+-3)
+	OR	A,A
+	SBC	HL,BC
+	JP	M,L__116
+	JP	PE,L_315
+	JR	L__117
+L__116:
+	JP	PO,L_315
+L__117:
+	LD	BC,(IX+12)
+	CALL	__stoiu
+	LD	DE,HL
+	LD	BC,(IX+15)
+	CALL	__stoiu
+	ADD	HL,DE
+	OR	A,A
+	LD	BC,(IX+-3)
+	SBC	HL,BC
+	JP	M,L__118
+	JP	PE,L_315
+	JR	L__119
+L__118:
+	JP	PO,L_315
+L__119:
+L_314:
+	LD	A,1
+	JR	L_316
+L_315:
+;  809		return 0;
+	XOR	A,A
+;  810	}
+L_316:
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _checkCollision ***************************
+;Name                         Addr/Register   Size   Type
+;G_0                                   IX-3      3   variable
+;wh2                                  IX+15      2   parameter
+;xy2                                  IX+12      2   parameter
+;wh1                                   IX+9      2   parameter
+;xy1                                   IX+6      2   parameter
+
+
+; Stack Frame Size: 21 (bytes)
+;       Spill Code: -18 (instruction)
+
+
+;  811	
+;  812	void drawString(char* string, uint16_t sx, uint16_t sy) {
+_drawString:
+	LD	HL,-29
+	CALL	__frameset
+;  813		uint16_t i;
+;  814		
+;  815		for(i = 0; i < strlen(string); i++) {
+	LD	(IX+-2),0
+	LD	(IX+-1),0
+	JR	L_331
+L_329:
+;  816			if(string[i] >= '0' && string[i] <= '9') {gfx_TransparentSprite((gfx_sprite_t*)testTiles[string[i] - '0' + 1], sx + i * 8, sy);}
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	LD	BC,(IX+6)
+	ADD	HL,BC
+	LD	(IX+-8),HL
+	LD	(IX+-17),HL
+	LD	HL,(IX+-8)
+	LD	A,(HL)
+	LD	B,A
+	SEXT	HL
+	LD	L,B
+	OR	A,A
+	LD	BC,48
+	SBC	HL,BC
+	JP	M,L__129
+	JP	PE,L_322
+	JR	L__130
+L__129:
+	JP	PO,L_322
+L__130:
+	LD	BC,(IX+-8)
+	LD	(IX+-17),BC
+	LD	HL,(IX+-8)
+	LD	A,(HL)
+	LD	B,A
+	SEXT	HL
+	LD	L,B
+	LD	BC,HL
+	LD	HL,57
+	OR	A,A
+	SBC	HL,BC
+	JP	M,L__131
+	JP	PE,L_322
+	JR	L__132
+L__131:
+	JP	PO,L_322
+L__132:
+	LD	BC,(IX+-8)
+	LD	(IX+-17),BC
+	LD	BC,(IX+12)
+	CALL	__stoiu
+	PUSH	HL
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	DE,HL
+	LD	BC,(IX+9)
+	CALL	__stoiu
+	ADD	HL,DE
+	PUSH	HL
+	LD	HL,(IX+-8)
+	LD	A,(HL)
+	LD	B,A
+	SEXT	HL
+	LD	L,B
+	LD	IY,HL
+	LEA	BC,IY+-47
+	LD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,BC
+	ADD	HL,HL
+	LD	BC,_testTiles
+	ADD	HL,BC
+	PUSH	HL
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+L_322:
+;  817			if(toupper(string[i]) >= 'A' && toupper(string[i]) <= 'Z') {gfx_TransparentSprite((gfx_sprite_t*)tiles[toupper(string[i]) - 'A' + 10 + 1], sx + i * 8, sy);}
+	LD	BC,(IX+-17)
+	LD	(IX+-5),BC
+	LD	(IX+-20),BC
+	LD	HL,BC
+	LD	A,(HL)
+	LD	B,A
+	SEXT	HL
+	LD	L,B
+	PUSH	HL
+	CALL	_toupper
+	POP	BC
+	LD	BC,65
+	OR	A,A
+	SBC	HL,BC
+	JP	M,L__133
+	JP	PE,L_324
+	JR	L__134
+L__133:
+	JP	PO,L_324
+L__134:
+	LD	BC,(IX+-5)
+	LD	(IX+-20),BC
+	LD	HL,(IX+-5)
+	LD	A,(HL)
+	LD	B,A
+	SEXT	HL
+	LD	L,B
+	PUSH	HL
+	CALL	_toupper
+	POP	BC
+	LD	BC,HL
+	LD	HL,90
+	OR	A,A
+	SBC	HL,BC
+	JP	M,L__135
+	JP	PE,L_324
+	JR	L__136
+L__135:
+	JP	PO,L_324
+L__136:
+	LD	BC,(IX+-5)
+	LD	(IX+-20),BC
+	LD	BC,(IX+12)
+	CALL	__stoiu
+	PUSH	HL
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	DE,HL
+	LD	BC,(IX+9)
+	CALL	__stoiu
+	ADD	HL,DE
+	PUSH	HL
+	LD	HL,(IX+-5)
+	LD	A,(HL)
+	LD	B,A
+	SEXT	HL
+	LD	L,B
+	PUSH	HL
+	CALL	_toupper
+	POP	BC
+	LD	IY,HL
+	LEA	BC,IY+-54
+	LD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	OR	A,A
+	SBC	HL,BC
+	LD	BC,_tiles
+	ADD	HL,BC
+	LD	BC,(HL)
+	PUSH	BC
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+L_324:
+;  818			if(string[i] == '-') {gfx_TransparentSprite((gfx_sprite_t*)tiles[string[i] - '-' + 0x28 + 1], sx + i * 8, sy);}
+	LD	BC,(IX+-20)
+	LD	(IX+-14),BC
+	LD	(IX+-23),BC
+	LD	HL,BC
+	LD	A,(HL)
+	LD	B,A
+	SEXT	HL
+	LD	L,B
+	OR	A,A
+	LD	BC,45
+	SBC	HL,BC
+	JR	NZ,L_326
+	LD	BC,(IX+-14)
+	LD	(IX+-23),BC
+	LD	BC,(IX+12)
+	CALL	__stoiu
+	PUSH	HL
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	DE,HL
+	LD	BC,(IX+9)
+	CALL	__stoiu
+	ADD	HL,DE
+	PUSH	HL
+	LD	HL,(IX+-14)
+	LD	A,(HL)
+	LD	B,A
+	SEXT	HL
+	LD	L,B
+	LD	BC,HL
+	DEC	BC
+	DEC	BC
+	DEC	BC
+	DEC	BC
+	LD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	OR	A,A
+	SBC	HL,BC
+	LD	BC,_tiles
+	ADD	HL,BC
+	LD	BC,(HL)
+	PUSH	BC
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+L_326:
+;  819			if(string[i] == '*') {gfx_TransparentSprite((gfx_sprite_t*)tiles[string[i] - '*' + 0x29 + 1], sx + i * 8, sy);}
+	LD	BC,(IX+-23)
+	LD	(IX+-11),BC
+	LD	(IX+-29),BC
+	LD	HL,BC
+	LD	A,(HL)
+	LD	B,A
+	SEXT	HL
+	LD	L,B
+	OR	A,A
+	LD	BC,42
+	SBC	HL,BC
+	JR	NZ,L_328
+	LD	BC,(IX+-11)
+	LD	(IX+-29),BC
+	LD	BC,(IX+12)
+	CALL	__stoiu
+	PUSH	HL
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	DE,HL
+	LD	BC,(IX+9)
+	CALL	__stoiu
+	ADD	HL,DE
+	PUSH	HL
+	LD	HL,(IX+-11)
+	LD	A,(HL)
+	LD	B,A
+	SEXT	HL
+	LD	L,B
+	LD	BC,HL
+	LD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	OR	A,A
+	SBC	HL,BC
+	LD	BC,_tiles
+	ADD	HL,BC
+	LD	BC,(HL)
+	PUSH	BC
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+L_328:
+;  820			if(string[i] == '!') {gfx_TransparentSprite((gfx_sprite_t*)tiles[string[i] - '!' + 0x2b + 1], sx + i * 8, sy);}
+	LD	BC,(IX+-29)
+	LD	(IX+-26),BC
+	LD	HL,BC
+	LD	A,(HL)
+	LD	B,A
+	SEXT	HL
+	LD	L,B
+	OR	A,A
+	LD	BC,33
+	SBC	HL,BC
+	JR	NZ,L_330
+	LD	BC,(IX+12)
+	CALL	__stoiu
+	PUSH	HL
+	LD	BC,(IX+-2)
+	CALL	__stoiu
+	ADD	HL,HL
+	ADD	HL,HL
+	ADD	HL,HL
+	LD	DE,HL
+	LD	BC,(IX+9)
+	CALL	__stoiu
+	ADD	HL,DE
+	PUSH	HL
+	LD	HL,(IX+-26)
+	LD	A,(HL)
+	LD	B,A
+	SEXT	HL
+	LD	L,B
+	LD	IY,HL
+	LEA	BC,IY+11
+	LD	HL,BC
+	ADD	HL,HL
+	ADD	HL,HL
+	OR	A,A
+	SBC	HL,BC
+	LD	BC,_tiles
+	ADD	HL,BC
+	LD	BC,(HL)
+	PUSH	BC
+	CALL	_gfx_TransparentSprite
+	POP	BC
+	POP	BC
+	POP	BC
+;  821		}
+L_330:
+	LD	HL,(IX+-2)
+	INC	HL
+	LD	(IX+-2),L
+	LD	(IX+-1),H
+L_331:
+	LD	BC,(IX+6)
+	PUSH	BC
+	CALL	_strlen
+	POP	BC
+	LD	BC,(IX+-2)
+	LD	DE,HL
+	CALL	__stoiu
+	OR	A,A
+	SBC	HL,DE
+	JR	C,L_329
+	LD	SP,IX
+	POP	IX
+	RET	
+
+
+;**************************** _drawString ***************************
+;Name                         Addr/Register   Size   Type
+;_strlen                             IMPORT  -----   function
+;_tiles                              IMPORT    768   variable
+;_toupper                            IMPORT  -----   function
+;_testTiles                          IMPORT  16896   variable
+;_gfx_TransparentSprite              IMPORT  -----   function
+;G_10                                 IX-29      3   variable
+;G_11                                 IX-26      3   variable
+;G_8                                  IX-23      3   variable
+;G_6                                  IX-20      3   variable
+;G_3                                  IX-17      3   variable
+;G_7                                  IX-14      3   variable
+;G_9                                  IX-11      3   variable
+;G_1                                   IX-8      3   variable
+;G_4                                   IX-5      3   variable
+;i                                     IX-2      2   variable
+;sy                                   IX+12      2   parameter
+;sx                                    IX+9      2   parameter
+;string                                IX+6      3   parameter
+
+
+; Stack Frame Size: 44 (bytes)
+;       Spill Code: -18 (instruction)
+
+
+	XREF _oneone:ROM
+	XREF _level:ROM
+	XREF _yBlocks:ROM
+	XREF _xBlocks:ROM
+	XREF _blocks:ROM
+	XREF _tilemap:ROM
+	XREF _my:ROM
+	XREF _mx:ROM
+	XREF _x:ROM
+	XREF _width:ROM
+	XREF _copyTiles:ROM
+	XREF _tiles:ROM
+	XREF _testTiles:ROM
+	XREF _colors:ROM
+	XREF _kb_Scan:ROM
+	XREF _gfx_TransparentSprite:ROM
+	XREF _gfx_Blit:ROM
+	XREF _gfx_SetDraw:ROM
+	XREF _gfx_FillRectangle:ROM
+	XREF _gfx_FillScreen:ROM
+	XREF _gfx_SetPalette:ROM
+	XREF _gfx_SetTransparentColor:ROM
+	XREF _gfx_SetColor:ROM
+	XREF _gfx_Tilemap:ROM
+	XREF _gfx_End:ROM
+	XREF _gfx_Begin:ROM
+	XREF _toupper:ROM
+	XREF _strlen:ROM
+	XREF _abs:ROM
+	XREF _floor:ROM
+	XREF __lcmpu:ROM
+	XREF __ladd:ROM
+	XREF __lsub:ROM
+	XREF __lmulu:ROM
+	XREF __lshru:ROM
+	XREF __fadd:ROM
+	XREF __fsub:ROM
+	XREF __fcmp:ROM
+	XREF __ftol:ROM
+	XREF __ultof:ROM
+	XREF __stoi:ROM
+	XREF __stoiu:ROM
+	XREF __itol:ROM
+	XREF __ildix:ROM
+	XREF __istix:ROM
+	XREF __frameset:ROM
+	XREF __scmpzero:ROM
+	XREF __ladd_b:ROM
+	XDEF _drawString
+	XDEF _checkCollision
+	XDEF _checkMarioGround
+	XDEF _updateMario
+	XDEF _copySprites
+	XDEF _drawTiles
+	XDEF _drawMario
+	XDEF _main
+	XDEF _marioGravity
+	XDEF _marioAnimation
+	XDEF _marioTimer
+	XDEF _marioState
+	XDEF _marioFrame
+	XDEF _marioGround
+	XDEF _marioJumping
+	XDEF _marioCanJump
+	XDEF _sprites
+	XDEF _dy
+	XDEF _dx
+	XDEF _right
+	XDEF _left
+	XDEF _up
+	XDEF _direction
+	END
