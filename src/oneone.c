@@ -6,9 +6,9 @@
 uint16_t width = 80; // level width
 uint16_t height = 30; // level height
 
-uint16_t x; // screen x
-uint32_t mx; // mario's x position (1/256 of a pixel)
-uint32_t my; // mario's y position (1/256 of a pixel)
+//uint16_t x; // screen x
+//uint32_t mx; // mario's x position (1/256 of a pixel)
+//uint32_t my; // mario's y position (1/256 of a pixel)
 
 gfx_tilemap_t tilemap;
 
