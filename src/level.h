@@ -5,6 +5,8 @@
 
 #include <graphx.h>
 
+// in order for a child of main.c (as in, it is included in main.c) to be able to use a variable that main.c needs to use, it must be declared here as an extern and redeclared in the child file
+
 extern bool up; // whether or not the up arrow is being pressed
 extern bool left; // whether or not the left arrow is being pressed
 extern bool right; // whether or not the right arrow is being pressed
@@ -31,7 +33,5 @@ extern void drawMario();
 extern void updateMario();
 
 extern bool checkCollision(uint16_t xy1, uint16_t wh1, uint16_t xy2, uint16_t wh2);
-
-extern uint8_t sprites[256][66];
 
 #endif

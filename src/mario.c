@@ -25,8 +25,6 @@ uint8_t marioTimer;
 uint8_t marioAnimation;
 uint16_t marioGravity = 0x50;
 
-uint8_t sprites[256][66];
-
 void drawMario() {
 	if(marioState == 0 && marioAnimation != 0) { // idle
 		marioAnimation = 0;

@@ -5,6 +5,7 @@
 #include <math.h>
 
 #include "level.h"
+#include "sprites.h"
 
 extern void checkMarioGround();
 
