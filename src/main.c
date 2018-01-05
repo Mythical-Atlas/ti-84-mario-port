@@ -16,9 +16,6 @@
 #include "tiles.h"
 #include "oneone.h"
 
-//uint8_t background = 0x22;
-//uint8_t* tiles0[256];
-
 bool direction; // direction mario's facing (0 = right, 1 = left)
 
 bool up; // whether or not the up arrow is being pressed
@@ -98,18 +95,6 @@ void main(void) {
 		if(kb_Data[7] & kb_Left) {left = 1;}
 		if(kb_Data[7] & kb_Right) {right = 1;}
 		
-		/*switch(kb_Data[7]) {
-			case(kb_Up):
-				up = 1;
-				break;
-			case(kb_Left):
-				left = 1;
-				break;
-			case(kb_Right):
-				right = 1;
-				break;
-		}*/
-		
 		updateMario();
 		updateMario();
 		
@@ -117,30 +102,6 @@ void main(void) {
 		
 		drawTiles();
 		drawMario();
-		
-		/*if(marioGround) {drawString("ground - 1", 32, 0);}
-		else {drawString("ground - 0", 32, 0);}
-		
-		if(up) {drawString("up - 1", 32, 8);}
-		else {drawString("up - 0", 32, 8);}
-		
-		sprintf(mxString, "dy - 0*%x", dy);
-		drawString(mxString, 32, 16);*/
-		
-		/*sprintf(mxString, "my - 0*%x", my);
-		drawString(mxString, 32, 8);
-		sprintf(mxString, "yblocks 0 - %i", yBlocks[0]);
-		drawString(mxString, 32, 16);
-		sprintf(mxString, "yblocks 1 - %i", yBlocks[1]);
-		drawString(mxString, 32, 24);*/
-		
-		/*sprintf(mxString, "mx - 0*%x", mx);
-		drawString(mxString, 32, 0);
-		
-		sprintf(mxString, "dx - 0*%x", dx);
-		drawString(mxString, 32, 8);*/
-		
-		//gfx_TransparentSprite((gfx_sprite_t*)testTiles[0x04], 16, 16);
 		
 		gfx_SetColor(0x1f);
 		gfx_FillRectangle(0, 0, 32, 240);
@@ -261,21 +222,7 @@ void drawMario() {
 	}
 }
 
-void drawTiles() {
-	/*uint8_t a;
-	uint16_t b = floor(x / 8);
-	uint16_t i;*/
-	
-	/*for(a = 0; a < 30; a++) {
-		for(i = 0; i < 41; i++) {
-			rendertable[i + a * 41] = level[i + b + a * width];
-		}
-	}*/
-	
-	//tilemap.x_loc = 8 % x;
-	
-	gfx_Tilemap(&tilemap, x, 0);
-}
+void drawTiles() {gfx_Tilemap(&tilemap, x, 0);}
 
 void copySprites() {
 	uint8_t tile00[66] = { // small idle right 0
