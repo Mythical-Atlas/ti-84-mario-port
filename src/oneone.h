@@ -5,7 +5,7 @@
 
 #include "level.h"
 
-extern uint8_t level[2400];
+extern uint8_t level[600];
 
 extern void oneone();
 

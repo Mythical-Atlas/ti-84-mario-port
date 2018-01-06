@@ -3,8 +3,8 @@
 
 #include "oneone.h"
 
-uint16_t width = 80; // level width
-uint16_t height = 30; // level height
+uint16_t width = 40; // level width
+uint16_t height = 15; // level height
 
 //uint16_t x; // screen x
 //uint32_t mx; // mario's x position (1/256 of a pixel)
@@ -12,7 +12,7 @@ uint16_t height = 30; // level height
 
 gfx_tilemap_t tilemap;
 
-uint8_t level[2400];
+uint8_t level[600];
 
 uint16_t blocks;
 uint16_t xBlocks[80]; // width
@@ -43,20 +43,18 @@ void oneone() {
 	
 	uint16_t i;
 	
-	width = 80;
-	height = 30;
+	width = 40;
+	height = 15;
 	
 	mx = 40 * 128; // pixel position * 128
 	my = 193 * 128; // pixel position * 128
 	
 	for(i = 0; i < width; i++) {
-		level[width * 26 + i] = ground[i % 2];
-		level[width * 27 + i] = ground[(i % 2) + 2];
-		level[width * 28 + i] = ground[i % 2];
-		level[width * 29 + i] = ground[(i % 2) + 2];
+		level[width * 13 + i] = 0x01;
+		level[width * 14 + i] = 0x01;
 	}
 	
-	blocks = width;
+	blocks = 80;
 	
 	for(i = 0; i < blocks; i += 2) {
 		newBlock(i + 2, 13, i);

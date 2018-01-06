@@ -40,14 +40,14 @@ void main(void) {
 	tilemap.map = level;
 	tilemap.tiles = (gfx_sprite_t**)tiles;
 	tilemap.x_loc = 32;
-	tilemap.width = 80;
-	tilemap.height = 30;
-	tilemap.draw_width = 33;
-	tilemap.draw_height = 30;
-	tilemap.tile_width = 8;
-	tilemap.tile_height = 8;
-	tilemap.type_width = gfx_tile_8_pixel;
-    tilemap.type_height = gfx_tile_8_pixel;
+	tilemap.width = 40;
+	tilemap.height = 15;
+	tilemap.draw_width = 17;
+	tilemap.draw_height = 15;
+	tilemap.tile_width = 16;
+	tilemap.tile_height = 16;
+	tilemap.type_width = gfx_tile_16_pixel;
+    tilemap.type_height = gfx_tile_16_pixel;
 	
 	gfx_Begin(gfx_8bpp);
 	gfx_SetTransparentColor(0x40);
@@ -70,7 +70,7 @@ void main(void) {
 		if(kb_Data[7] & kb_Right) {right = 1;}
 		
 		updateMario();
-		updateMario();
+		//updateMario();
 		
 		gfx_FillScreen(0x22);
 		
