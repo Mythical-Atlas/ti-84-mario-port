@@ -49,13 +49,6 @@ void oneone() {
 	mx = 40 * 128; // pixel position * 128
 	my = 193 * 128; // pixel position * 128
 	
-	//for(i = 0; i < width * height; i++) {level[i] = (uint8_t)NULL;}
-	
-	/*level[0] = 0xb4;
-	level[40] = 0xb5;
-	level[80] = 0xb6;
-	level[120] = 0xb7;*/
-	
 	for(i = 0; i < width; i++) {
 		level[width * 26 + i] = ground[i % 2];
 		level[width * 27 + i] = ground[(i % 2) + 2];
@@ -69,72 +62,6 @@ void oneone() {
 		newBlock(i + 2, 13, i);
 		newBlock(i + 2, 14, i + 1);
 	}
-	
-	/*for(i = 0; i < 4; i++) {
-		level[width * 5 + i + 17] = cloud0[i];
-		level[width * 6 + i + 17] = cloud1[i];
-	}
-	for(i = 0; i < 6; i++) {
-		level[width * 21 + i] = hill0[i];
-		level[width * 23 + i + 32] = hill0[i];
-		level[width * 21 + i + 96] = hill0[i];
-		level[width * 23 + i + 128] = hill0[i];
-		level[width * 21 + i + 192] = hill0[i];
-		level[width * 23 + i + 224] = hill0[i];
-		level[width * 21 + i + 288] = hill0[i];
-		level[width * 23 + i + 320] = hill0[i];
-		level[width * 21 + i + 384] = hill0[i];
-		level[width * 23 + i + 416] = hill0[i];
-	}
-	for(i = 0; i < 7; i++) {
-		level[width * 22 + i] = hill1[i];
-		level[width * 24 + i + 32] = hill1[i];
-		level[width * 22 + i + 96] = hill1[i];
-		level[width * 24 + i + 128] = hill1[i];
-		level[width * 22 + i + 192] = hill1[i];
-		level[width * 24 + i + 224] = hill1[i];
-		level[width * 22 + i + 288] = hill1[i];
-		level[width * 24 + i + 320] = hill1[i];
-		level[width * 22 + i + 384] = hill1[i];
-		level[width * 24 + i + 416] = hill1[i];
-	}
-	for(i = 0; i < 8; i++) {
-		level[width * 23 + i] = hill2[i];
-		level[width * 25 + i + 32] = hill2[i];
-		level[width * 23 + i + 96] = hill2[i];
-		level[width * 25 + i + 128] = hill2[i];
-		level[width * 23 + i + 192] = hill2[i];
-		level[width * 25 + i + 224] = hill2[i];
-		level[width * 23 + i + 288] = hill2[i];
-		level[width * 25 + i + 320] = hill2[i];
-		level[width * 23 + i + 384] = hill2[i];
-		level[width * 25 + i + 416] = hill2[i];
-		
-		level[width * 24 + i + 23] = bush0[i];
-		level[width * 25 + i + 23] = bush1[i];
-		level[width * 24 + i + 119] = bush0[i];
-		level[width * 25 + i + 119] = bush1[i];
-		level[width * 24 + i + 215] = bush0[i];
-		level[width * 25 + i + 215] = bush1[i];
-		level[width * 24 + i + 311] = bush0[i];
-		level[width * 25 + i + 311] = bush1[i];
-		level[width * 24 + i + 407] = bush0[i];
-		level[width * 25 + i + 407] = bush1[i];
-	}
-	for(i = 0; i < 9; i++) {
-		level[width * 24 + i] = hill3[i];
-		level[width * 24 + i + 96] = hill3[i];
-		level[width * 24 + i + 192] = hill3[i];
-		level[width * 24 + i + 288] = hill3[i];
-		level[width * 24 + i + 384] = hill3[i];
-	}
-	for(i = 0; i < 10; i++) {
-		level[width * 25 + i] = hill4[i];
-		level[width * 25 + i + 96] = hill4[i];
-		level[width * 25 + i + 192] = hill4[i];
-		level[width * 25 + i + 288] = hill4[i];
-		level[width * 25 + i + 384] = hill4[i];
-	}*/
 }
 
 void newBlock(uint16_t bx, uint16_t by, uint16_t i) {

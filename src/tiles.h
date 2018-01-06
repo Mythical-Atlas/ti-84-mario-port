@@ -3,11 +3,9 @@
 
 #include <stdint.h>
 
-//extern uint8_t bg[256][66];
 extern uint8_t testTiles[256][66];
 extern uint8_t* tiles[256];
 
 extern void copyTiles();
-//extern void drawTiles();
 
 #endif

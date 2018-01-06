@@ -689,21 +689,4 @@ void copyTiles() {
 	for(i = 0; i < 66; i++) {testTiles[0xb7][i] = tileb7[i];}
 	
 	for(i = 0; i < 256; i++) {tiles[i] = testTiles[i];}
-	
-	//tilemap.tiles = (gfx_sprite_t**)tiles; // must be tiles, not bg
 }
-/*void drawTiles() {
-	/*uint8_t a;
-	uint16_t b = floor(x / 8);
-	uint16_t i;*/
-	
-	/*for(a = 0; a < 30; a++) {
-		for(i = 0; i < 41; i++) {
-			rendertable[i + a * 41] = level[i + b + a * width];
-		}
-	}*/
-	
-	//tilemap.x_loc = 8 % x;
-	
-	/*gfx_Tilemap(&tilemap, x, 0);
-}*/
