@@ -13,7 +13,7 @@ COMPRESSED  ?= NO
 ICON        ?= iconc.png
 DESCRIPTION ?= "Super Mario Bros."
 
-L ?= graphx keypadc
+L ?= graphx keypadc fileioc
 
 # ----------------------------
 # Specify source and output locations
