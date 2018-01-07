@@ -17,16 +17,6 @@
 #include "oneone.h"
 #include "mario.h"
 
-/*
-
-mario states/animations
-
-0 = idle
-1 = running
-2 = skidding
-
-*/
-
 void drawTiles();
 
 void drawString(char* string, uint16_t sx, uint16_t sy);
@@ -70,7 +60,7 @@ void main(void) {
 		if(kb_Data[7] & kb_Right) {right = 1;}
 		
 		updateMario();
-		//updateMario();
+		updateMario();
 		
 		gfx_FillScreen(0x22);
 		

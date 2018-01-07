@@ -25,6 +25,17 @@ uint8_t marioTimer;
 uint8_t marioAnimation;
 uint16_t marioGravity = 0x50;
 
+/*
+
+mario states/animations
+
+0 = idle
+1 = running
+2 = skidding
+3 = jumping
+
+*/
+
 void drawMario() {
 	if(marioState == 0 && marioAnimation != 0) { // idle
 		marioAnimation = 0;
@@ -57,6 +68,11 @@ void drawMario() {
 	}
 	if(marioState == 2 && marioAnimation != 2) { // skidding
 		marioAnimation = 2;
+		marioTimer = 0;
+		marioFrame = 0;
+	}
+	if(marioState == 3 && marioAnimation != 3) { // jumping
+		marioAnimation = 3;
 		marioTimer = 0;
 		marioFrame = 0;
 	}
@@ -132,11 +148,25 @@ void drawMario() {
 			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x1f], floor(mx / 128) - x + 16, floor(my / 128) + 8);
 		}
 	}
+	if(marioAnimation == 3) { // jumping
+		if(!direction) {
+			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x20], floor(mx / 128) - x + 8, floor(my / 128));
+			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x21], floor(mx / 128) - x + 16, floor(my / 128));
+			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x22], floor(mx / 128) - x + 8, floor(my / 128) + 8);
+			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x23], floor(mx / 128) - x + 16, floor(my / 128) + 8);
+		}
+		else {
+			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x24], floor(mx / 128) - x + 8, floor(my / 128));
+			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x25], floor(mx / 128) - x + 16, floor(my / 128));
+			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x26], floor(mx / 128) - x + 8, floor(my / 128) + 8);
+			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x27], floor(mx / 128) - x + 16, floor(my / 128) + 8);
+		}
+	}
 }
 void updateMario() {
 	checkMarioGround();
 	
-	if(left && !right) {
+	if(left && !right) { // todo: add air horizontal physics
 		if(dx > 0) {
 			dx -= 0x34;
 			marioState = 2;
@@ -211,6 +241,8 @@ void updateMario() {
 		}
 		
 		dy += marioGravity;
+		
+		marioState = 3;
 	}
 	
 	mx += dx;
