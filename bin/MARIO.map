@@ -4,20 +4,23 @@ Copyright (C) 1999-2008 Zilog, Inc. All Rights Reserved
 
 LINK MAP:
 
-DATE:      Wed Jan 03 22:44:00 2018
+DATE:      Sat Jan 06 22:45:10 2018
 PROCESSOR: assembler
 FILES:     obj\colors.obj         obj\font.obj           obj\main.obj           
-           obj\maps.obj           
+           obj\maps.obj           obj\mario.obj          
            obj\mariorun.obj
-           obj\oneone.obj         obj\tiles.obj          obj\iconc.obj          
+           obj\oneone.obj         obj\sprites.obj        obj\tiles.obj          
+           obj\iconc.obj          
            C:\CEdev\lib\ccleanup.obj
            C:\CEdev\lib\cce.lib
            C:\CEdev\lib\cshared.lib
            C:\CEdev\lib\clinked.lib
            C:\CEdev\lib\graphx.lib
            C:\CEdev\lib\keypadc.lib
+           C:\CEdev\lib\fileioc.lib
            C:\CEdev\lib\graphx_header.obj
            C:\CEdev\lib\keypadc_header.obj
+           C:\CEdev\lib\fileioc_header.obj
            C:\CEdev\lib\libheader.obj
            C:\CEdev\lib\cstartup.obj
            
@@ -25,15 +28,15 @@ FILES:     obj\colors.obj         obj\font.obj           obj\main.obj
 
 COMMAND LIST:
 =============
--FORMAT=INTEL32 -map -maxhexlen=64 -quiet -warnoverlap -xref -unresolved=fatal -sort ADDRESS=ascending -warn -NOdebug -NOigcase define __copy_code_to_ram = 0 range rom $000000 : $3FFFFF range ram $D00000 : $FFFFFF range bss $D031F6 : $D13FD6 change code is ram change data is ram change text is ram change strsect is text define __low_bss = base of bss define __len_bss = length of bss define __heaptop = (highaddr of bss) define __heapbot = (top of bss)+1 define __stack = $D1A87E locate .header at $D1A87F locate .icon at (top of .header)+1 locate .launcher at (top of .icon)+1 locate .libs at (top of .launcher)+1 locate .graphx_header at (top of .libs)+1 locate .graphx at (top of .graphx_header)+1 locate .keypadc_header at (top of .graphx+1) locate .keypadc at (top of .keypadc_header)+1 locate .startup at (top of .keypadc)+1 locate .cleanup at (top of .startup)+1 locate .exit at (top of .cleanup)+1 locate code at (top of .exit)+1 locate data at (top of code)+1 locate text at (top of data)+1 bin/MARIO.hex = obj\colors.obj,obj\font.obj,obj\main.obj,obj\maps.obj,obj\mariorun.obj,obj\oneone.obj,obj\tiles.obj,obj\iconc.obj,C:\CEdev\lib\ccleanup.obj,C:\CEdev\lib\cce.lib,C:\CEdev\lib\cshared.lib,C:\CEdev\lib\clinked.lib,C:\CEdev\lib\graphx.lib,C:\CEdev\lib\keypadc.lib,C:\CEdev\lib\graphx_header.obj,C:\CEdev\lib\keypadc_header.obj,C:\CEdev\lib\libheader.obj,C:\CEdev\lib\cstartup.obj 
+-FORMAT=INTEL32 -map -maxhexlen=64 -quiet -warnoverlap -xref -unresolved=fatal -sort ADDRESS=ascending -warn -NOdebug -NOigcase define __copy_code_to_ram = 0 range rom $000000 : $3FFFFF range ram $D00000 : $FFFFFF range bss $D031F6 : $D13FD6 change code is ram change data is ram change text is ram change strsect is text define __low_bss = base of bss define __len_bss = length of bss define __heaptop = (highaddr of bss) define __heapbot = (top of bss)+1 define __stack = $D1A87E locate .header at $D1A87F locate .icon at (top of .header)+1 locate .launcher at (top of .icon)+1 locate .libs at (top of .launcher)+1 locate .graphx_header at (top of .libs)+1 locate .graphx at (top of .graphx_header)+1 locate .keypadc_header at (top of .graphx+1) locate .keypadc at (top of .keypadc_header)+1 locate .fileioc_header at (top of .keypadc+1) locate .fileioc at (top of .fileioc_header)+1 locate .startup at (top of .fileioc)+1 locate .cleanup at (top of .startup)+1 locate .exit at (top of .cleanup)+1 locate code at (top of .exit)+1 locate data at (top of code)+1 locate text at (top of data)+1 bin/MARIO.hex = obj\colors.obj,obj\font.obj,obj\main.obj,obj\maps.obj,obj\mario.obj,obj\mariorun.obj,obj\oneone.obj,obj\sprites.obj,obj\tiles.obj,obj\iconc.obj,C:\CEdev\lib\ccleanup.obj,C:\CEdev\lib\cce.lib,C:\CEdev\lib\cshared.lib,C:\CEdev\lib\clinked.lib,C:\CEdev\lib\graphx.lib,C:\CEdev\lib\keypadc.lib,C:\CEdev\lib\fileioc.lib,C:\CEdev\lib\graphx_header.obj,C:\CEdev\lib\keypadc_header.obj,C:\CEdev\lib\fileioc_header.obj,C:\CEdev\lib\libheader.obj,C:\CEdev\lib\cstartup.obj 
 
 SPACE ALLOCATION:
 =================
 
 Space                     Base         Top      Size      Used    Unused
 ------------------ ----------- ----------- --------- --------- ---------
-RAM                   D:D031F6    D:D20B96   300000H     F4E5H   2F0B1BH
-                                          (  3145728     62693   3083035)
+RAM                   D:D031F6    D:D1FB4B   300000H     9A9CH   2F6564H
+                                          (  3145728     39580   3106148)
 
 
 SEGMENTS WITHIN SPACE:
@@ -41,8 +44,9 @@ SEGMENTS WITHIN SPACE:
 
 RAM                Type                Base        Top         Size
 ------------------ ------------------- ----------- ----------- ---------
-.cleanup           normal data            D:D1AA68    D:D1AA7B       14h
-.exit              normal data            D:D1AA7C    D:D1AA83        8h
+.cleanup           normal data            D:D1AA72    D:D1AA85       14h
+.exit              normal data            D:D1AA86    D:D1AA8D        8h
+.fileioc_header    normal data            D:D1AA2D    D:D1AA36        ah
 .graphx            normal data            D:D1A9F3    D:D1AA1E       2ch
 .graphx_header     normal data            D:D1A9EA    D:D1A9F2        9h
 .header            normal data            D:D1A87F    D:D1A881        3h
@@ -50,86 +54,108 @@ RAM                Type                Base        Top         Size
 .keypadc           normal data            D:D1AA29    D:D1AA2C        4h
 .keypadc_header    normal data            D:D1AA1F    D:D1AA28        ah
 .launcher          normal data            D:D1A99A    D:D1A9E9       50h
-.startup           normal data            D:D1AA2D    D:D1AA67       3bh
-BSS                normal data            D:D031F6    D:D0C3C2     91cdh
-CODE               normal data            D:D1AA84    D:D1F3BA     4937h
-DATA               normal data            D:D1F3BB    D:D1F464       aah
-TEXT               normal data            D:D1F465    D:D20B96     1732h
+.startup           normal data            D:D1AA37    D:D1AA71       3bh
+BSS                normal data            D:D031F6    D:D079C4     47cfh
+CODE               normal data            D:D1AA8E    D:D1E26D     37e0h
+DATA               normal data            D:D1E26E    D:D1E317       aah
+TEXT               normal data            D:D1E318    D:D1FB4B     1834h
 
 SEGMENTS WITHIN MODULES:
 ========================
 
-Module: ..\..\..\CE-PRO~1\MARIO\SRC\COLORS.C (File: colors.obj) Version: 1:0 01/03/2018 22:43:13
+Module: ..\..\..\CE-PRO~1\MARIO\SRC\COLORS.C (File: colors.obj) Version: 1:0 01/05/2018 23:19:24
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: DATA                              D:D1F3BB    D:D1F43C       82h
+    Segment: DATA                              D:D1E26E    D:D1E2EF       82h
 
 
-Module: ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C (File: main.obj) Version: 1:0 01/03/2018 22:43:59
-
-    Name                                        Base        Top      Size
-    --------------------------------------- ----------- ----------- ---------
-    Segment: BSS                               D:D031F6    D:D07404     420fh
-    Segment: CODE                              D:D1AA84    D:D1DB06     3083h
-    Segment: DATA                              D:D1F43D    D:D1F43E        2h
-    Segment: TEXT                              D:D1F465    D:D1FCA4      840h
-
-
-Module: ..\..\..\CE-PRO~1\MARIO\SRC\ONEONE.C (File: oneone.obj) Version: 1:0 01/03/2018 22:43:20
+Module: ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C (File: main.obj) Version: 1:0 01/06/2018 17:28:48
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: BSS                               D:D07405    D:D07EC2      abeh
-    Segment: CODE                              D:D1DB07    D:D1DDAD      2a7h
-    Segment: DATA                              D:D1F43F    D:D1F442        4h
-    Segment: TEXT                              D:D1FCA5    D:D1FD26       82h
+    Segment: CODE                              D:D1AA8E    D:D1AE72      3e5h
 
 
-Module: ..\..\..\CE-PRO~1\MARIO\SRC\TILES.C (File: tiles.obj) Version: 1:0 01/03/2018 22:43:23
+Module: ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C (File: mario.obj) Version: 1:0 01/05/2018 23:19:32
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: BSS                               D:D07EC3    D:D0C3C2     4500h
-    Segment: CODE                              D:D1DDAE    D:D1F395     15e8h
-    Segment: TEXT                              D:D1FD27    D:D20B96      e70h
+    Segment: BSS                               D:D031F6    D:D0320E       19h
+    Segment: CODE                              D:D1AE73    D:D1CEA5     2033h
+    Segment: DATA                              D:D1E2F0    D:D1E2F1        2h
+
+
+Module: ..\..\..\CE-PRO~1\MARIO\SRC\ONEONE.C (File: oneone.obj) Version: 1:0 01/05/2018 23:19:33
+
+    Name                                        Base        Top      Size
+    --------------------------------------- ----------- ----------- ---------
+    Segment: BSS                               D:D0320F    D:D035BA      3ach
+    Segment: CODE                              D:D1CEA6    D:D1D0B1      20ch
+    Segment: DATA                              D:D1E2F2    D:D1E2F5        4h
+    Segment: TEXT                              D:D1E318    D:D1E399       82h
+
+
+Module: ..\..\..\CE-PRO~1\MARIO\SRC\SPRITES.C (File: sprites.obj) Version: 1:0 01/05/2018 23:19:35
+
+    Name                                        Base        Top      Size
+    --------------------------------------- ----------- ----------- ---------
+    Segment: BSS                               D:D035BB    D:D077BA     4200h
+    Segment: CODE                              D:D1D0B2    D:D1DD14      c63h
+    Segment: TEXT                              D:D1E39A    D:D1EBD9      840h
+
+
+Module: ..\..\..\CE-PRO~1\MARIO\SRC\TILES.C (File: tiles.obj) Version: 1:0 01/06/2018 22:45:09
+
+    Name                                        Base        Top      Size
+    --------------------------------------- ----------- ----------- ---------
+    Segment: BSS                               D:D077BB    D:D079C4      20ah
+    Segment: CODE                              D:D1DD15    D:D1E248      534h
+    Segment: TEXT                              D:D1EBDA    D:D1FB4B      f72h
 
 
 Module: abs.src (Library: cshared.lib) Version: 1:0 08/13/2017 11:25:59
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              D:D1F396    D:D1F3A1        ch
+    Segment: CODE                              D:D1E249    D:D1E254        ch
 
 
 Module: ccleanup.asm (File: ccleanup.obj) Version: 1:0 08/13/2017 11:27:26
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: .cleanup                          D:D1AA68    D:D1AA7B       14h
+    Segment: .cleanup                          D:D1AA72    D:D1AA85       14h
 
 
 Module: cstartup.asm (File: cstartup.obj) Version: 1:0 08/13/2017 11:27:26
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: .exit                             D:D1AA7C    D:D1AA83        8h
+    Segment: .exit                             D:D1AA86    D:D1AA8D        8h
     Segment: .header                           D:D1A87F    D:D1A881        3h
-    Segment: .startup                          D:D1AA2D    D:D1AA67       3bh
+    Segment: .startup                          D:D1AA37    D:D1AA71       3bh
+
+
+Module: fileioc_header.asm (File: fileioc_header.obj) Version: 1:0 08/13/2017 11:25:29
+
+    Name                                        Base        Top      Size
+    --------------------------------------- ----------- ----------- ---------
+    Segment: .fileioc_header                   D:D1AA2D    D:D1AA36        ah
 
 
 Module: frameset.src (Library: cshared.lib) Version: 1:0 08/13/2017 11:26:11
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              D:D1F3AD    D:D1F3BA        eh
+    Segment: CODE                              D:D1E260    D:D1E26D        eh
 
 
 Module: frameset0.src (Library: cshared.lib) Version: 1:0 08/13/2017 11:26:11
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              D:D1F3A2    D:D1F3AC        bh
+    Segment: CODE                              D:D1E255    D:D1E25F        bh
 
 
 Module: gfx_Begin.src (Library: graphx.lib) Version: 1:0 08/13/2017 11:24:38
@@ -242,7 +268,7 @@ Module: libheader.asm (File: libheader.obj) Version: 1:0 08/13/2017 11:27:26
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
     Segment: .launcher                         D:D1A99A    D:D1A9E9       50h
-    Segment: DATA                              D:D1F443    D:D1F464       22h
+    Segment: DATA                              D:D1E2F6    D:D1E317       22h
 
 EXTERNAL DEFINITIONS:
 =====================
@@ -250,14 +276,13 @@ EXTERNAL DEFINITIONS:
 Symbol                             Address   Module          Segment
 -------------------------------- ----------- --------------- --------------------------------
 __copy_code_to_ram                  00000000 (User Defined)
-__len_bss                           000091CD (User Defined)
+__len_bss                           000047CF (User Defined)
 __low_bss                           00D031F6 (User Defined)
-__heapbot                           00D0C3C3 (User Defined)
+__heapbot                           00D079C5 (User Defined)
 __heaptop                           00D13FD6 (User Defined)
 __stack                             00D1A87E (User Defined)
 _strlen                             D:0000D4 strlen          CODE                            
 __ildix                             D:000148 ildix           CODE                            
-__irems                             D:00016C irems           CODE                            
 __istix                             D:00018C istix           CODE                            
 __itol                              D:000194 itol            CODE                            
 __ladd                              D:00019C ladd            CODE                            
@@ -277,30 +302,30 @@ __fsub                              D:000290 fpsub           CODE
 _toupper                            D:021E38 toupper         CODE                            
 _floor                              D:0220F4 floor           CODE                            
 _errno                              D:D008DC cstartup        CODE                            
-_direction                          D:D031F6 MAIN            BSS                             
-_up                                 D:D031F7 MAIN            BSS                             
-_left                               D:D031F8 MAIN            BSS                             
-_right                              D:D031F9 MAIN            BSS                             
-_dx                                 D:D031FA MAIN            BSS                             
-_dy                                 D:D031FC MAIN            BSS                             
-_sprites                            D:D031FE MAIN            BSS                             
-_marioCanJump                       D:D073FE MAIN            BSS                             
-_marioJumping                       D:D073FF MAIN            BSS                             
-_marioGround                        D:D07400 MAIN            BSS                             
-_marioFrame                         D:D07401 MAIN            BSS                             
-_marioState                         D:D07402 MAIN            BSS                             
-_marioTimer                         D:D07403 MAIN            BSS                             
-_marioAnimation                     D:D07404 MAIN            BSS                             
-_x                                  D:D07405 ONEONE          BSS                             
-_mx                                 D:D07407 ONEONE          BSS                             
-_my                                 D:D0740B ONEONE          BSS                             
-_tilemap                            D:D0740F ONEONE          BSS                             
-_level                              D:D07421 ONEONE          BSS                             
-_blocks                             D:D07D81 ONEONE          BSS                             
-_xBlocks                            D:D07D83 ONEONE          BSS                             
-_yBlocks                            D:D07E23 ONEONE          BSS                             
-_testTiles                          D:D07EC3 TILES           BSS                             
-_tiles                              D:D0C0C3 TILES           BSS                             
+_x                                  D:D031F6 MARIO           BSS                             
+_up                                 D:D031F8 MARIO           BSS                             
+_left                               D:D031F9 MARIO           BSS                             
+_right                              D:D031FA MARIO           BSS                             
+_direction                          D:D031FB MARIO           BSS                             
+_mx                                 D:D031FC MARIO           BSS                             
+_my                                 D:D03200 MARIO           BSS                             
+_dx                                 D:D03204 MARIO           BSS                             
+_dy                                 D:D03206 MARIO           BSS                             
+_marioCanJump                       D:D03208 MARIO           BSS                             
+_marioJumping                       D:D03209 MARIO           BSS                             
+_marioGround                        D:D0320A MARIO           BSS                             
+_marioFrame                         D:D0320B MARIO           BSS                             
+_marioState                         D:D0320C MARIO           BSS                             
+_marioTimer                         D:D0320D MARIO           BSS                             
+_marioAnimation                     D:D0320E MARIO           BSS                             
+_tilemap                            D:D0320F ONEONE          BSS                             
+_level                              D:D03221 ONEONE          BSS                             
+_blocks                             D:D03479 ONEONE          BSS                             
+_xBlocks                            D:D0347B ONEONE          BSS                             
+_yBlocks                            D:D0351B ONEONE          BSS                             
+_sprites                            D:D035BB SPRITES         BSS                             
+_testTiles                          D:D077BB TILES           BSS                             
+_tiles                              D:D079BF TILES           BSS                             
 _init                               D:D1A882 cstartup        .header                         
 __program_icon                      D:D1A887 iconc           .icon                           
 __program_description               D:D1A989 iconc           .icon                           
@@ -316,29 +341,29 @@ _gfx_Tilemap                        D:D1AA13 gfx_Tilemap     .graphx
 _gfx_TransparentSprite              D:D1AA17 gfx_Transparent .graphx                         
 _gfx_End                            D:D1AA1B gfx_End         .graphx                         
 _kb_Scan                            D:D1AA29 kb_Scan         .keypadc                        
-__exit                              D:D1AA5A cstartup        .startup                        
-__errsp                             D:D1AA5A cstartup        .startup                        
-_exit                               D:D1AA7E cstartup        .exit                           
-_main                               D:D1AA84 MAIN            CODE                            
-_drawMario                          D:D1ABBD MAIN            CODE                            
-_drawTiles                          D:D1C565 MAIN            CODE                            
-_copySprites                        D:D1C581 MAIN            CODE                            
-_updateMario                        D:D1D1E4 MAIN            CODE                            
-_checkMarioGround                   D:D1D6EA MAIN            CODE                            
-_checkCollision                     D:D1D7D6 MAIN            CODE                            
-_drawString                         D:D1D86F MAIN            CODE                            
-_oneone                             D:D1DB07 ONEONE          CODE                            
-_newBlock                           D:D1DD7B ONEONE          CODE                            
-_copyTiles                          D:D1DDAE TILES           CODE                            
-_abs                                D:D1F396 abs             CODE                            
-__frameset0                         D:D1F3A2 frameset0       CODE                            
-__frameset                          D:D1F3AD frameset        CODE                            
-_colors                             D:D1F3BB COLORS          DATA                            
-_marioGravity                       D:D1F43D MAIN            DATA                            
-_width                              D:D1F43F ONEONE          DATA                            
-_height                             D:D1F441 ONEONE          DATA                            
+__exit                              D:D1AA64 cstartup        .startup                        
+__errsp                             D:D1AA64 cstartup        .startup                        
+_exit                               D:D1AA88 cstartup        .exit                           
+_main                               D:D1AA8E MAIN            CODE                            
+_drawTiles                          D:D1ABC7 MAIN            CODE                            
+_drawString                         D:D1ABE3 MAIN            CODE                            
+_drawMario                          D:D1AE73 MARIO           CODE                            
+_updateMario                        D:D1C81B MARIO           CODE                            
+_checkMarioGround                   D:D1CD21 MARIO           CODE                            
+_checkCollision                     D:D1CE0D MARIO           CODE                            
+_oneone                             D:D1CEA6 ONEONE          CODE                            
+_newBlock                           D:D1D07F ONEONE          CODE                            
+_copySprites                        D:D1D0B2 SPRITES         CODE                            
+_copyTiles                          D:D1DD15 TILES           CODE                            
+_abs                                D:D1E249 abs             CODE                            
+__frameset0                         D:D1E255 frameset0       CODE                            
+__frameset                          D:D1E260 frameset        CODE                            
+_colors                             D:D1E26E COLORS          DATA                            
+_marioGravity                       D:D1E2F0 MARIO           DATA                            
+_width                              D:D1E2F2 ONEONE          DATA                            
+_height                             D:D1E2F4 ONEONE          DATA                            
 
-88 external symbol(s).
+87 external symbol(s).
 
 SYMBOL CROSS REFERENCE:
 =======================
@@ -355,80 +380,86 @@ __stack                           Defined     LINKER
 _strlen                           Defined     strlen.src
                                   Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
 __ildix                           Defined     ildix.src
-                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\SPRITES.C
                                   Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\TILES.C
-__irems                           Defined     irems.src
-                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\ONEONE.C
 __istix                           Defined     istix.src
-                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\SPRITES.C
                                   Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\TILES.C
 __itol                            Defined     itol.src
-                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
 __ladd                            Defined     ladd.src
-                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
 __ladd_b                          Defined     ladd.src
-                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
 __lcmpu                           Defined     lcmpu.src
-                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
 __lmulu                           Defined     lmulu.src
-                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
 __lshru                           Defined     lshru.src
-                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
 __lsub                            Defined     lsub.src
-                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
 __scmpzero                        Defined     scmpzero.src
-                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
 __stoi                            Defined     stoi.src
-                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
 __stoiu                           Defined     stoiu.src
                                   Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
                                   Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\ONEONE.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\SPRITES.C
                                   Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\TILES.C
 __fadd                            Defined     fpadd.src
-                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
 __fcmp                            Defined     fpcmp.src
-                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
 __ftol                            Defined     fpftol.src
-                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
 __ultof                           Defined     fpultof.src
-                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
 __fsub                            Defined     fpsub.src
-                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
 _toupper                          Defined     toupper.src
                                   Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
 _floor                            Defined     floor.src
-                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
 _errno                            Defined     cstartup.asm
-_direction                        Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
-_up                               Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
-_left                             Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
-_right                            Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
-_dx                               Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
-_dy                               Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
-_sprites                          Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
-_marioCanJump                     Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
-_marioJumping                     Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
-_marioGround                      Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
-_marioFrame                       Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
-_marioState                       Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
-_marioTimer                       Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
-_marioAnimation                   Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
-_x                                Defined     ..\..\..\CE-PRO~1\MARIO\SRC\ONEONE.C
+_x                                Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
                                   Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
-_mx                               Defined     ..\..\..\CE-PRO~1\MARIO\SRC\ONEONE.C
+_up                               Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
                                   Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
-_my                               Defined     ..\..\..\CE-PRO~1\MARIO\SRC\ONEONE.C
+_left                             Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
                                   Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+_right                            Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+_direction                        Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
+_mx                               Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\ONEONE.C
+_my                               Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\ONEONE.C
+_dx                               Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
+_dy                               Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
+_marioCanJump                     Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
+_marioJumping                     Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
+_marioGround                      Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
+_marioFrame                       Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
+_marioState                       Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
+_marioTimer                       Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
+_marioAnimation                   Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
 _tilemap                          Defined     ..\..\..\CE-PRO~1\MARIO\SRC\ONEONE.C
                                   Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
 _level                            Defined     ..\..\..\CE-PRO~1\MARIO\SRC\ONEONE.C
                                   Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
 _blocks                           Defined     ..\..\..\CE-PRO~1\MARIO\SRC\ONEONE.C
-                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
 _xBlocks                          Defined     ..\..\..\CE-PRO~1\MARIO\SRC\ONEONE.C
-                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
 _yBlocks                          Defined     ..\..\..\CE-PRO~1\MARIO\SRC\ONEONE.C
-                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
+_sprites                          Defined     ..\..\..\CE-PRO~1\MARIO\SRC\SPRITES.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
 _testTiles                        Defined     ..\..\..\CE-PRO~1\MARIO\SRC\TILES.C
                                   Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
 _tiles                            Defined     ..\..\..\CE-PRO~1\MARIO\SRC\TILES.C
@@ -456,6 +487,7 @@ _gfx_Tilemap                      Defined     gfx_Tilemap.src
                                   Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
 _gfx_TransparentSprite            Defined     gfx_TransparentSprite.src
                                   Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
 _gfx_End                          Defined     gfx_End.src
                                   Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
 _kb_Scan                          Defined     kb_Scan.src
@@ -465,36 +497,41 @@ __errsp                           Defined     cstartup.asm
 _exit                             Defined     cstartup.asm
 _main                             Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
                                   Referenced  cstartup.asm
-_drawMario                        Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
 _drawTiles                        Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
-_copySprites                      Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
-_updateMario                      Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
-_checkMarioGround                 Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
-_checkCollision                   Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
 _drawString                       Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+_drawMario                        Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+_updateMario                      Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+_checkMarioGround                 Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
+_checkCollision                   Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
 _oneone                           Defined     ..\..\..\CE-PRO~1\MARIO\SRC\ONEONE.C
                                   Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
 _newBlock                         Defined     ..\..\..\CE-PRO~1\MARIO\SRC\ONEONE.C
+_copySprites                      Defined     ..\..\..\CE-PRO~1\MARIO\SRC\SPRITES.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
 _copyTiles                        Defined     ..\..\..\CE-PRO~1\MARIO\SRC\TILES.C
                                   Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
 _abs                              Defined     abs.src
-                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
 __frameset0                       Defined     frameset0.src
                                   Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\ONEONE.C
 __frameset                        Defined     frameset.src
                                   Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
                                   Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\ONEONE.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\SPRITES.C
                                   Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\TILES.C
 _colors                           Defined     ..\..\..\CE-PRO~1\MARIO\SRC\COLORS.C
                                   Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
-_marioGravity                     Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+_marioGravity                     Defined     ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
 _width                            Defined     ..\..\..\CE-PRO~1\MARIO\SRC\ONEONE.C
-                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C
+                                  Referenced  ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C
 _height                           Defined     ..\..\..\CE-PRO~1\MARIO\SRC\ONEONE.C
 
 OUTPUT CHECKSUM
 ===============
-bin/MARIO.hex        2AA07A
+bin/MARIO.hex        21EC3E
 
 
 
