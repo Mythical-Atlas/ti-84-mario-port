@@ -1,8 +1,8 @@
 #include <stdint.h>
+#include <fileioc.h>
 
 #include "tiles.h"
 
-//uint8_t bg[256][66];
 uint8_t testTiles[2][258];
 uint8_t* tiles[2];
 
@@ -648,6 +648,8 @@ void copyTiles() {
 	
 	uint16_t i;
 	
+	//ti_var_t appvar;
+	
 	// DONT'T ASSIGN ANYTHING TO 0x00 OR NULL WILL SHOW UP AS THAT TILE
 	/*for(i = 0; i < 66; i++) {testTiles[0x01][i] = tile00[i];} // 0
 	for(i = 0; i < 66; i++) {testTiles[0x02][i] = tile01[i];} // 1
@@ -711,4 +713,12 @@ void copyTiles() {
 	for(i = 0; i < 258; i++) {testTiles[0x1][i] = testb4[i];}
 	
 	for(i = 0; i < 2; i++) {tiles[i] = testTiles[i];}
+
+	/*ti_CloseAll()
+	
+	appvar = ti_Open("MARIOT", "w");
+	
+	ti_Write($testTiles, sizeof(uint8_t), 258, appvar);
+	
+	ti_CloseAll()*/
 }
