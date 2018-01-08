@@ -43,9 +43,6 @@ void oneone() {
 	
 	uint16_t i;
 	
-	width = 40;
-	height = 15;
-	
 	mx = 40 * 128; // pixel position * 128
 	my = 193 * 128; // pixel position * 128
 	

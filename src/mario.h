@@ -7,6 +7,8 @@
 #include "level.h"
 #include "sprites.h"
 
+extern int16_t odx; // old dx from jump start
+
 extern void checkMarioGround();
 
 extern void moveOutOfGround();

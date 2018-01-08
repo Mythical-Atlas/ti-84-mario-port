@@ -56,6 +56,7 @@ void main(void) {
 		right = 0;
 		
 		if(kb_Data[7] & kb_Up) {up = 1;}
+		if(kb_Data[1] & kb_2nd) {up = 1;}
 		if(kb_Data[7] & kb_Left) {left = 1;}
 		if(kb_Data[7] & kb_Right) {right = 1;}
 		
