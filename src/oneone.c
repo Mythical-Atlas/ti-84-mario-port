@@ -14,9 +14,9 @@ gfx_tilemap_t tilemap;
 
 uint8_t level[600];
 
-uint16_t blocks;
-uint16_t xBlocks[80]; // width
-uint16_t yBlocks[80]; // width
+uint16_t xBlocks = 40;
+uint16_t yBlocks = 15;
+uint16_t blocks[40][15];
 
 void newBlock(uint16_t bx, uint16_t by, uint16_t i);
 
@@ -54,15 +54,13 @@ void oneone() {
 		level[width * 14 + i] = 0x01;
 	}
 	
-	blocks = 80;
-	
-	for(i = 0; i < blocks; i += 2) {
-		newBlock(i + 2, 13, i);
-		newBlock(i + 2, 14, i + 1);
+	for(i = 0; i < xBlocks; i++) {
+		blocks[i][13] = 1;
+		blocks[i][14] = 1;
 	}
 }
 
-void newBlock(uint16_t bx, uint16_t by, uint16_t i) {
+/*void newBlock(uint16_t bx, uint16_t by, uint16_t i) {
 	xBlocks[i] = bx;
 	yBlocks[i] = by;
-}
+}*/

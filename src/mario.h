@@ -9,8 +9,6 @@
 
 extern void checkMarioGround();
 
-extern int16_t findGroundDistance(uint16_t i);
-
 extern void moveOutOfGround();
 
 #endif

@@ -25,9 +25,9 @@ extern int16_t dy; // delta y (y speed)
 
 extern gfx_tilemap_t tilemap;
 
-extern uint16_t blocks;
-extern uint16_t xBlocks[80];
-extern uint16_t yBlocks[80];
+extern uint16_t xBlocks;
+extern uint16_t yBlocks;
+extern uint16_t blocks[40][15];
 
 extern void drawMario();
 extern void updateMario();

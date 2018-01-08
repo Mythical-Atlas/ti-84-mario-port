@@ -23,7 +23,7 @@ uint8_t marioFrame;
 uint8_t marioState;
 uint8_t marioTimer;
 uint8_t marioAnimation;
-uint16_t marioGravity = 0x50 * 4;
+uint16_t marioGravity = 0x50;
 
 /*
 
@@ -109,38 +109,38 @@ void updateMario() {
 	
 	if(left && !right) { // todo: add air horizontal physics
 		if(dx > 0) {
-			dx -= 0x34 * 2;
+			dx -= 0x34;
 			marioState = 2;
 		}
 		else {
-			dx -= 0x13 * 2;
+			dx -= 0x13;
 			marioState = 1;
 		}
-		if(dx < -0x320 * 2) {dx = -0x320 * 2;}
+		if(dx < -0x320) {dx = -0x320;}
 		
 		direction = 1;
 	}
 	if(!left && right) {
 		if(dx < 0) {
-			dx += 0x34 * 2;
+			dx += 0x34;
 			marioState = 2;
 		}
 		else {
-			dx += 0x13 * 2;
+			dx += 0x13;
 			marioState = 1;
 		}
-		if(dx > 0x320 * 2) {dx = 0x320 * 2;}
+		if(dx > 0x320) {dx = 0x320;}
 		
 		direction = 0;
 	}
 	if(!left && !right || left && right) {
-		if(dx < -0x26 * 2) {
-			if(marioState == 2) {dx += 0x34 * 2;}
-			else {dx += 0x1a * 2;}
+		if(dx < -0x26) {
+			if(marioState == 2) {dx += 0x34;}
+			else {dx += 0x1a;}
 		}
-		else if(dx > 0x26 * 2) {
-			if(marioState == 2) {dx -= 0x34 * 2;}
-			else {dx -= 0x1a * 2;}
+		else if(dx > 0x26) {
+			if(marioState == 2) {dx -= 0x34;}
+			else {dx -= 0x1a;}
 		}
 		else {
 			dx = 0;
@@ -158,26 +158,26 @@ void updateMario() {
 			marioCanJump = 0;
 			marioGround = 0;
 			
-			if(dx < 0x200 * 2) {
-				dy = -0x400 * 2;
-				marioGravity = 0x40 * 4;
+			if(dx < 0x200) {
+				dy = -0x400;
+				marioGravity = 0x40;
 			}
-			if(dx >= 0x200 * 2 && dx < 0x500 * 2) {
-				dy = -0x400 * 2;
-				marioGravity = 0x3C * 4;
+			if(dx >= 0x200 && dx < 0x500) {
+				dy = -0x400;
+				marioGravity = 0x3C;
 			}
-			if(dx >= 0x500 * 2) {
-				dy = -0x500 * 2;
-				marioGravity = 0x50 * 4;
+			if(dx >= 0x500) {
+				dy = -0x500;
+				marioGravity = 0x50;
 			}
 		}
 	}
 	else {
 		if(marioJumping) {
 			if(!up) {
-				if(marioGravity == 0x40 * 4) {marioGravity = 0xe0 * 4;}
-				if(marioGravity == 0x3C * 4) {marioGravity = 0xc0 * 4;}
-				if(marioGravity == 0x50 * 4) {marioGravity = 0x120 * 4;}
+				if(marioGravity == 0x40) {marioGravity = 0xe0;}
+				if(marioGravity == 0x3C) {marioGravity = 0xc0;}
+				if(marioGravity == 0x50) {marioGravity = 0x120;}
 			}
 		}
 		
@@ -206,27 +206,33 @@ void updateMario() {
 	if(x > width * 8 - 288) {x = width * 8 - 288;}
 }
 void checkMarioGround() {
-	uint16_t i;
-	
 	marioGround = 0;
 
-	for(i = 0; i < blocks; i++) {
-		if(checkCollision(floor(mx / 128), 16, xBlocks[i] * 16, 16) && checkCollision(floor(my / 128) + 16, 1, yBlocks[i] * 16, 16)) {
-			marioGround = 1;
-			
-			break;
-		}
-	}
+	/*if(blocks[(uint16_t)floor(mx / 128 / 16)][(uint16_t)floor(my / 128 / 16)] == 1) {if(checkCollision(floor(mx / 128), 16, floor(mx / 128 / 16) * 16, 16) && checkCollision(floor(my / 128), 16, floor(my / 128 / 16) * 16, 16)) {marioGround = 1;}}
+	if(blocks[(uint16_t)floor(mx / 128 / 16) + 1][(uint16_t)floor(my / 128 / 16)] == 1) {if(checkCollision(floor(mx / 128), 16, floor(mx / 128 / 16) * 16 + 16, 16) && checkCollision(floor(my / 128), 16, floor(my / 128 / 16) * 16, 16)) {marioGround = 1;}}*/
+	if(blocks[(uint16_t)floor(mx / 128 / 16)][(uint16_t)floor((my / 128 + 16) / 16)] == 1) {if(checkCollision(floor(mx / 128), 16, floor(mx / 128 / 16) * 16, 16) && checkCollision(floor(my / 128) + 16, 1, floor(my / 128 / 16) * 16 + 16, 16)) {marioGround = 1;}}
+	if(blocks[(uint16_t)floor((mx / 128 + 16) / 16)][(uint16_t)floor((my / 128 + 16) / 16)] == 1) {if(checkCollision(floor(mx / 128), 16, floor(mx / 128 / 16) * 16 + 16, 16) && checkCollision(floor(my / 128) + 16, 1, floor(my / 128 / 16) * 16 + 16, 16)) {marioGround = 1;}}
 }
 
 void moveOutOfGround() {
-	uint16_t i;
-
-	for(i = 0; i < blocks; i++) {
-		if(checkCollision(floor(mx / 128), 16, xBlocks[i] * 16, 16) && checkCollision(floor(my / 128), 16, yBlocks[i] * 16, 16)) {
-			my += findGroundDistance(i)/* / 64*/;
-			
-			break;
+	if(blocks[(uint16_t)floor(mx / 128 / 16)][(uint16_t)floor(my / 128 / 16)] == 1) {
+		if(checkCollision(floor(mx / 128), 16, floor(mx / 128 / 16) * 16, 16) && checkCollision(floor(my / 128), 16, floor(my / 128 / 16) * 16, 16)) {
+			my += floor(my / 128 / 16) * 16 * 128 - my;
+		}
+	}
+	if(blocks[(uint16_t)floor((mx + 16) / 128 / 16)][(uint16_t)floor(my / 128 / 16)] == 1) {
+		if(checkCollision(floor(mx / 128), 16, floor(mx / 128 / 16) * 16 + 16, 16) && checkCollision(floor(my / 128), 16, floor(my / 128 / 16) * 16, 16)) {
+			my += floor(my / 128 / 16) * 16 * 128 - my;
+		}
+	}
+	if(blocks[(uint16_t)floor(mx / 128 / 16)][(uint16_t)floor((my / 128 + 16) / 16)] == 1) {
+		if(checkCollision(floor(mx / 128), 16, floor(mx / 128 / 16) * 16, 16) && checkCollision(floor(my / 128), 16, floor(my / 128 / 16) * 16 + 16, 16)) {
+			my += floor(my / 128 / 16) * 16 * 128 - my;
+		}
+	}
+	if(blocks[(uint16_t)floor((mx / 128 + 16) / 16)][(uint16_t)floor((my / 128 + 16) / 16)] == 1) {
+		if(checkCollision(floor(mx / 128), 16, floor(mx / 128 / 16) * 16 + 16, 16) && checkCollision(floor(my / 128), 16, floor(my / 128 / 16) * 16 + 16, 16)) {
+			my += floor(my / 128 / 16) * 16 * 128 - my;
 		}
 	}
 }
@@ -235,5 +241,3 @@ bool checkCollision(uint16_t xy1, uint16_t wh1, uint16_t xy2, uint16_t wh2) {
 	if(xy1 >= xy2 && xy1 <= xy2 + wh2 || xy1 + wh1 >= xy2 && xy1 + wh1 <= xy2 + wh2) {return 1;}
 	return 0;
 }
-
-int16_t findGroundDistance(uint16_t i) {return yBlocks[i] * 16 * 128 - (my + 16 * 128);}
