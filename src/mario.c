@@ -23,7 +23,7 @@ uint8_t marioFrame;
 uint8_t marioState;
 uint8_t marioTimer;
 uint8_t marioAnimation;
-uint16_t marioGravity = 0x50;
+uint16_t marioGravity = 0x50 * 4;
 
 /*
 
@@ -109,38 +109,38 @@ void updateMario() {
 	
 	if(left && !right) { // todo: add air horizontal physics
 		if(dx > 0) {
-			dx -= 0x34;
+			dx -= 0x34 * 2;
 			marioState = 2;
 		}
 		else {
-			dx -= 0x13;
+			dx -= 0x13 * 2;
 			marioState = 1;
 		}
-		if(dx < -0x320) {dx = -0x320;}
+		if(dx < -0x320 * 2) {dx = -0x320 * 2;}
 		
 		direction = 1;
 	}
 	if(!left && right) {
 		if(dx < 0) {
-			dx += 0x34;
+			dx += 0x34 * 2;
 			marioState = 2;
 		}
 		else {
-			dx += 0x13;
+			dx += 0x13 * 2;
 			marioState = 1;
 		}
-		if(dx > 0x320) {dx = 0x320;}
+		if(dx > 0x320 * 2) {dx = 0x320 * 2;}
 		
 		direction = 0;
 	}
 	if(!left && !right || left && right) {
-		if(dx < -0x26) {
-			if(marioState == 2) {dx += 0x34;}
-			else {dx += 0x1a;}
+		if(dx < -0x26 * 2) {
+			if(marioState == 2) {dx += 0x34 * 2;}
+			else {dx += 0x1a * 2;}
 		}
-		else if(dx > 0x26) {
-			if(marioState == 2) {dx -= 0x34;}
-			else {dx -= 0x1a;}
+		else if(dx > 0x26 * 2) {
+			if(marioState == 2) {dx -= 0x34 * 2;}
+			else {dx -= 0x1a * 2;}
 		}
 		else {
 			dx = 0;
@@ -158,26 +158,26 @@ void updateMario() {
 			marioCanJump = 0;
 			marioGround = 0;
 			
-			if(dx < 0x200) {
-				dy = -0x400;
-				marioGravity = 0x40;
+			if(dx < 0x200 * 2) {
+				dy = -0x400 * 2;
+				marioGravity = 0x40 * 4;
 			}
-			if(dx >= 0x200 && dx < 0x500) {
-				dy = -0x400;
-				marioGravity = 0x3C;
+			if(dx >= 0x200 * 2 && dx < 0x500 * 2) {
+				dy = -0x400 * 2;
+				marioGravity = 0x3C * 4;
 			}
-			if(dx >= 0x500) {
-				dy = -0x500;
-				marioGravity = 0x50;
+			if(dx >= 0x500 * 2) {
+				dy = -0x500 * 2;
+				marioGravity = 0x50 * 4;
 			}
 		}
 	}
 	else {
 		if(marioJumping) {
 			if(!up) {
-				if(marioGravity == 0x40) {marioGravity = 0xe0;}
-				if(marioGravity == 0x3C) {marioGravity = 0xc0;}
-				if(marioGravity == 0x50) {marioGravity = 0x120;}
+				if(marioGravity == 0x40 * 4) {marioGravity = 0xe0 * 4;}
+				if(marioGravity == 0x3C * 4) {marioGravity = 0xc0 * 4;}
+				if(marioGravity == 0x50 * 4) {marioGravity = 0x120 * 4;}
 			}
 		}
 		

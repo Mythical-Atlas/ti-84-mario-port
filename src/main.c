@@ -60,7 +60,7 @@ void main(void) {
 		if(kb_Data[7] & kb_Right) {right = 1;}
 		
 		updateMario();
-		updateMario();
+		//updateMario();
 		
 		gfx_FillScreen(0x22);
 		
