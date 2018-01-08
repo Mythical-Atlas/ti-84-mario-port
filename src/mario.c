@@ -25,7 +25,7 @@ uint8_t marioFrame;
 uint8_t marioState;
 uint8_t marioTimer;
 uint8_t marioAnimation;
-uint16_t marioGravity = 0x50 * 4;
+uint16_t marioGravity = 0x50/2;
 
 /*
 
@@ -200,33 +200,33 @@ void updateMario() {
 			odx = dx;
 			
 			if(dx < 0x200) {
-				dy = -0x400;
-				marioGravity = 0x40;
+				dy = -0x800/3;
+				marioGravity = 0x40/2;
 			}
 			if(dx >= 0x200 && dx < 0x500) {
-				dy = -0x400;
-				marioGravity = 0x3C;
+				dy = -0x800/3;
+				marioGravity = 0x3C/2;
 			}
-			if(dx >= 0x500 * 2) {
-				dy = -0x500;
-				marioGravity = 0x50;
+			if(dx >= 0x500) {
+				dy = -0xa00/3;
+				marioGravity = 0x50/2;
 			}
 		}
 	}
 	else {
 		if(marioJumping) {
 			if(!up) {
-				if(marioGravity == 0x40) {marioGravity = 0xe0;}
-				if(marioGravity == 0x3C) {marioGravity = 0xc0;}
-				if(marioGravity == 0x50) {marioGravity = 0x120;}
+				if(marioGravity == 0x40/2) {marioGravity = 0xe0/2;}
+				if(marioGravity == 0x3C/2) {marioGravity = 0xc0/2;}
+				if(marioGravity == 0x50/2) {marioGravity = 0x120/2;}
 			}
 			
 			if(dy > 0) {
 				marioJumping = 0;
 				
-				if(marioGravity == 0x40) {marioGravity = 0xe0;}
-				if(marioGravity == 0x3C) {marioGravity = 0xc0;}
-				if(marioGravity == 0x50) {marioGravity = 0x120;}
+				if(marioGravity == 0x40/2) {marioGravity = 0xe0/2;}
+				if(marioGravity == 0x3C/2) {marioGravity = 0xc0/2;}
+				if(marioGravity == 0x50/2) {marioGravity = 0x120/2;}
 			}
 		}
 		
