@@ -186,6 +186,8 @@ void updateMario() {
 		marioState = 3;
 	}
 	
+	moveOutOfGround();
+	
 	mx += dx;
 	my += dy;
 	
@@ -211,6 +213,19 @@ void checkMarioGround() {
 	for(i = 0; i < blocks; i++) {
 		if(checkCollision(floor(mx / 128), 16, xBlocks[i] * 16, 16) && checkCollision(floor(my / 128) + 16, 1, yBlocks[i] * 16, 16)) {
 			marioGround = 1;
+			
+			break;
+		}
+	}
+}
+
+void moveOutOfGround() {
+	uint16_t i;
+
+	for(i = 0; i < blocks; i++) {
+		if(checkCollision(floor(mx / 128), 16, xBlocks[i] * 16, 16) && checkCollision(floor(my / 128), 16, yBlocks[i] * 16, 16)) {
+			my += findGroundDistance(i)/* / 64*/;
+			
 			break;
 		}
 	}
@@ -220,3 +235,5 @@ bool checkCollision(uint16_t xy1, uint16_t wh1, uint16_t xy2, uint16_t wh2) {
 	if(xy1 >= xy2 && xy1 <= xy2 + wh2 || xy1 + wh1 >= xy2 && xy1 + wh1 <= xy2 + wh2) {return 1;}
 	return 0;
 }
+
+int16_t findGroundDistance(uint16_t i) {return yBlocks[i] * 16 * 128 - (my + 16 * 128);}
