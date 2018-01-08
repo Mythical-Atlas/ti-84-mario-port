@@ -78,89 +78,30 @@ void drawMario() {
 	}
 	
 	if(marioAnimation == 0) { // idle
-		if(!direction) {
-			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x00], floor(mx / 128) - x + 8, floor(my / 128));
-			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x01], floor(mx / 128) - x + 16, floor(my / 128));
-		}
-		else {
-			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x04], floor(mx / 128) - x + 8, floor(my / 128));
-			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x05], floor(mx / 128) - x + 16, floor(my / 128));
-		}
-		
-		gfx_TransparentSprite((gfx_sprite_t*)sprites[0x02], floor(mx / 128) - x + 8, floor(my / 128) + 8);
-		gfx_TransparentSprite((gfx_sprite_t*)sprites[0x03], floor(mx / 128) - x + 16, floor(my / 128) + 8);
+		if(!direction) {gfx_TransparentSprite((gfx_sprite_t*)sprites[0x00], floor(mx / 128) - x + 8, floor(my / 128));}
+		else {gfx_TransparentSprite((gfx_sprite_t*)sprites[0x01], floor(mx / 128) - x + 8, floor(my / 128));}
 	}
 	if(marioAnimation == 1) { // running
 		if(marioFrame == 0) {
-			if(!direction) {
-				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x06], floor(mx / 128) - x + 8, floor(my / 128));
-				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x07], floor(mx / 128) - x + 16, floor(my / 128));
-				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x08], floor(mx / 128) - x + 8, floor(my / 128) + 8);
-				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x09], floor(mx / 128) - x + 16, floor(my / 128) + 8);
-			}
-			else {
-				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x0f], floor(mx / 128) - x + 8, floor(my / 128));
-				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x10], floor(mx / 128) - x + 16, floor(my / 128));
-				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x11], floor(mx / 128) - x + 8, floor(my / 128) + 8);
-				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x12], floor(mx / 128) - x + 16, floor(my / 128) + 8);
-			}
+			if(!direction) {gfx_TransparentSprite((gfx_sprite_t*)sprites[0x02], floor(mx / 128) - x + 8, floor(my / 128));}
+			else {gfx_TransparentSprite((gfx_sprite_t*)sprites[0x05], floor(mx / 128) - x + 8, floor(my / 128));}
 		}
 		if(marioFrame == 1) {
-			if(!direction) {
-				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x0a], floor(mx / 128) - x + 8, floor(my / 128));
-				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x01], floor(mx / 128) - x + 16, floor(my / 128));
-				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x0b], floor(mx / 128) - x + 8, floor(my / 128) + 8);
-				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x0c], floor(mx / 128) - x + 16, floor(my / 128) + 8);
-			}
-			else {
-				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x04], floor(mx / 128) - x + 8, floor(my / 128));
-				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x13], floor(mx / 128) - x + 16, floor(my / 128));
-				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x14], floor(mx / 128) - x + 8, floor(my / 128) + 8);
-				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x15], floor(mx / 128) - x + 16, floor(my / 128) + 8);
-			}
+			if(!direction) {gfx_TransparentSprite((gfx_sprite_t*)sprites[0x03], floor(mx / 128) - x + 8, floor(my / 128));}
+			else {gfx_TransparentSprite((gfx_sprite_t*)sprites[0x06], floor(mx / 128) - x + 8, floor(my / 128));}
 		}
 		if(marioFrame == 2) {
-			if(!direction) {
-				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x00], floor(mx / 128) - x + 8, floor(my / 128));
-				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x01], floor(mx / 128) - x + 16, floor(my / 128));
-				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x0d], floor(mx / 128) - x + 8, floor(my / 128) + 8);
-				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x0e], floor(mx / 128) - x + 16, floor(my / 128) + 8);
-			}
-			else {
-				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x04], floor(mx / 128) - x + 8, floor(my / 128));
-				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x05], floor(mx / 128) - x + 16, floor(my / 128));
-				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x16], floor(mx / 128) - x + 8, floor(my / 128) + 8);
-				gfx_TransparentSprite((gfx_sprite_t*)sprites[0x17], floor(mx / 128) - x + 16, floor(my / 128) + 8);
-			}
+			if(!direction) {gfx_TransparentSprite((gfx_sprite_t*)sprites[0x04], floor(mx / 128) - x + 8, floor(my / 128));}
+			else {gfx_TransparentSprite((gfx_sprite_t*)sprites[0x07], floor(mx / 128) - x + 8, floor(my / 128));}
 		}
 	}
 	if(marioAnimation == 2) { // skidding
-		if(!direction) {
-			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x18], floor(mx / 128) - x + 8, floor(my / 128));
-			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x19], floor(mx / 128) - x + 16, floor(my / 128));
-			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x1a], floor(mx / 128) - x + 8, floor(my / 128) + 8);
-			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x1b], floor(mx / 128) - x + 16, floor(my / 128) + 8);
-		}
-		else {
-			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x1c], floor(mx / 128) - x + 8, floor(my / 128));
-			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x1d], floor(mx / 128) - x + 16, floor(my / 128));
-			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x1e], floor(mx / 128) - x + 8, floor(my / 128) + 8);
-			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x1f], floor(mx / 128) - x + 16, floor(my / 128) + 8);
-		}
+		if(!direction) {gfx_TransparentSprite((gfx_sprite_t*)sprites[0x08], floor(mx / 128) - x + 8, floor(my / 128));}
+		else {gfx_TransparentSprite((gfx_sprite_t*)sprites[0x09], floor(mx / 128) - x + 8, floor(my / 128));}
 	}
 	if(marioAnimation == 3) { // jumping
-		if(!direction) {
-			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x20], floor(mx / 128) - x + 8, floor(my / 128));
-			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x21], floor(mx / 128) - x + 16, floor(my / 128));
-			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x22], floor(mx / 128) - x + 8, floor(my / 128) + 8);
-			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x23], floor(mx / 128) - x + 16, floor(my / 128) + 8);
-		}
-		else {
-			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x24], floor(mx / 128) - x + 8, floor(my / 128));
-			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x25], floor(mx / 128) - x + 16, floor(my / 128));
-			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x26], floor(mx / 128) - x + 8, floor(my / 128) + 8);
-			gfx_TransparentSprite((gfx_sprite_t*)sprites[0x27], floor(mx / 128) - x + 16, floor(my / 128) + 8);
-		}
+		if(!direction) {gfx_TransparentSprite((gfx_sprite_t*)sprites[0x0a], floor(mx / 128) - x + 8, floor(my / 128));}
+		else {gfx_TransparentSprite((gfx_sprite_t*)sprites[0x0b], floor(mx / 128) - x + 8, floor(my / 128));}
 	}
 }
 void updateMario() {

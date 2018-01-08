@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <math.h>
 
-extern uint8_t sprites[256][66];
+extern uint8_t sprites[64][258];
 
 extern void copySprites();
 
