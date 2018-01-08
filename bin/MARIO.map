@@ -4,7 +4,7 @@ Copyright (C) 1999-2008 Zilog, Inc. All Rights Reserved
 
 LINK MAP:
 
-DATE:      Mon Jan 08 11:22:51 2018
+DATE:      Mon Jan 08 14:14:24 2018
 PROCESSOR: assembler
 FILES:     obj\colors.obj         obj\font.obj           obj\main.obj           
            obj\maps.obj           obj\mario.obj          
@@ -35,8 +35,8 @@ SPACE ALLOCATION:
 
 Space                     Base         Top      Size      Used    Unused
 ------------------ ----------- ----------- --------- --------- ---------
-RAM                   D:D031F6    D:D1F3D4   300000H     D44BH   2F2BB5H
-                                          (  3145728     54347   3091381)
+RAM                   D:D031F6    D:D1F46E   300000H     D4E5H   2F2B1BH
+                                          (  3145728     54501   3091227)
 
 
 SEGMENTS WITHIN SPACE:
@@ -56,69 +56,69 @@ RAM                Type                Base        Top         Size
 .launcher          normal data            D:D1A99A    D:D1A9E9       50h
 .startup           normal data            D:D1AA37    D:D1AA71       3bh
 BSS                normal data            D:D031F6    D:D0BAEA     88f5h
-CODE               normal data            D:D1AA8E    D:D1D71A     2c8dh
-DATA               normal data            D:D1D71B    D:D1D7C8       aeh
-TEXT               normal data            D:D1D7C9    D:D1F3D4     1c0ch
+CODE               normal data            D:D1AA8E    D:D1D7B4     2d27h
+DATA               normal data            D:D1D7B5    D:D1D862       aeh
+TEXT               normal data            D:D1D863    D:D1F46E     1c0ch
 
 SEGMENTS WITHIN MODULES:
 ========================
 
-Module: ..\..\..\CE-PRO~1\MARIO\SRC\COLORS.C (File: colors.obj) Version: 1:0 01/08/2018 11:14:00
+Module: ..\..\..\CE-PRO~1\MARIO\SRC\COLORS.C (File: colors.obj) Version: 1:0 01/08/2018 13:50:47
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: DATA                              D:D1D71B    D:D1D79C       82h
+    Segment: DATA                              D:D1D7B5    D:D1D836       82h
 
 
-Module: ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C (File: main.obj) Version: 1:0 01/08/2018 11:22:47
+Module: ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C (File: main.obj) Version: 1:0 01/08/2018 13:50:49
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              D:D1AA8E    D:D1AE7C      3efh
+    Segment: CODE                              D:D1AA8E    D:D1AE80      3f3h
 
 
-Module: ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C (File: mario.obj) Version: 1:0 01/08/2018 11:22:50
+Module: ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C (File: mario.obj) Version: 1:0 01/08/2018 14:14:24
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
     Segment: BSS                               D:D031F6    D:D03210       1bh
-    Segment: CODE                              D:D1AE7D    D:D1CAE8     1c6ch
-    Segment: DATA                              D:D1D79D    D:D1D79E        2h
+    Segment: CODE                              D:D1AE81    D:D1CB54     1cd4h
+    Segment: DATA                              D:D1D837    D:D1D838        2h
 
 
-Module: ..\..\..\CE-PRO~1\MARIO\SRC\ONEONE.C (File: oneone.obj) Version: 1:0 01/08/2018 11:14:10
+Module: ..\..\..\CE-PRO~1\MARIO\SRC\ONEONE.C (File: oneone.obj) Version: 1:0 01/08/2018 13:50:53
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
     Segment: BSS                               D:D03211    D:D0392A      71ah
-    Segment: CODE                              D:D1CAE9    D:D1CD0B      223h
-    Segment: DATA                              D:D1D79F    D:D1D7A6        8h
-    Segment: TEXT                              D:D1D7C9    D:D1D84A       82h
+    Segment: CODE                              D:D1CB55    D:D1CDA5      251h
+    Segment: DATA                              D:D1D839    D:D1D840        8h
+    Segment: TEXT                              D:D1D863    D:D1D8E4       82h
 
 
-Module: ..\..\..\CE-PRO~1\MARIO\SRC\SPRITES.C (File: sprites.obj) Version: 1:0 01/08/2018 11:14:11
+Module: ..\..\..\CE-PRO~1\MARIO\SRC\SPRITES.C (File: sprites.obj) Version: 1:0 01/08/2018 13:50:54
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
     Segment: BSS                               D:D0392B    D:D079AA     4080h
-    Segment: CODE                              D:D1CD0C    D:D1D1CC      4c1h
-    Segment: TEXT                              D:D1D84B    D:D1E462      c18h
+    Segment: CODE                              D:D1CDA6    D:D1D266      4c1h
+    Segment: TEXT                              D:D1D8E5    D:D1E4FC      c18h
 
 
-Module: ..\..\..\CE-PRO~1\MARIO\SRC\TILES.C (File: tiles.obj) Version: 1:0 01/08/2018 11:14:12
+Module: ..\..\..\CE-PRO~1\MARIO\SRC\TILES.C (File: tiles.obj) Version: 1:0 01/08/2018 13:50:55
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
     Segment: BSS                               D:D079AB    D:D0BAEA     4140h
-    Segment: CODE                              D:D1D1CD    D:D1D700      534h
-    Segment: TEXT                              D:D1E463    D:D1F3D4      f72h
+    Segment: CODE                              D:D1D267    D:D1D79A      534h
+    Segment: TEXT                              D:D1E4FD    D:D1F46E      f72h
 
 
 Module: abs.src (Library: cshared.lib) Version: 1:0 08/13/2017 11:25:59
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              D:D1D701    D:D1D70C        ch
+    Segment: CODE                              D:D1D79B    D:D1D7A6        ch
 
 
 Module: ccleanup.asm (File: ccleanup.obj) Version: 1:0 08/13/2017 11:27:26
@@ -148,7 +148,7 @@ Module: frameset.src (Library: cshared.lib) Version: 1:0 08/13/2017 11:26:11
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
-    Segment: CODE                              D:D1D70D    D:D1D71A        eh
+    Segment: CODE                              D:D1D7A7    D:D1D7B4        eh
 
 
 Module: gfx_Begin.src (Library: graphx.lib) Version: 1:0 08/13/2017 11:24:38
@@ -261,7 +261,7 @@ Module: libheader.asm (File: libheader.obj) Version: 1:0 08/13/2017 11:27:26
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
     Segment: .launcher                         D:D1A99A    D:D1A9E9       50h
-    Segment: DATA                              D:D1D7A7    D:D1D7C8       22h
+    Segment: DATA                              D:D1D841    D:D1D862       22h
 
 EXTERNAL DEFINITIONS:
 =====================
@@ -338,24 +338,24 @@ __exit                              D:D1AA64 cstartup        .startup
 __errsp                             D:D1AA64 cstartup        .startup                        
 _exit                               D:D1AA88 cstartup        .exit                           
 _main                               D:D1AA8E MAIN            CODE                            
-_drawTiles                          D:D1ABD1 MAIN            CODE                            
-_drawString                         D:D1ABED MAIN            CODE                            
-_drawMario                          D:D1AE7D MARIO           CODE                            
-_updateMario                        D:D1B673 MARIO           CODE                            
-_checkMarioGround                   D:D1BE8A MARIO           CODE                            
-_moveOutOfGround                    D:D1C1FA MARIO           CODE                            
-_checkCollision                     D:D1CA50 MARIO           CODE                            
-_oneone                             D:D1CAE9 ONEONE          CODE                            
-_copySprites                        D:D1CD0C SPRITES         CODE                            
-_copyTiles                          D:D1D1CD TILES           CODE                            
-_abs                                D:D1D701 abs             CODE                            
-__frameset                          D:D1D70D frameset        CODE                            
-_colors                             D:D1D71B COLORS          DATA                            
-_marioGravity                       D:D1D79D MARIO           DATA                            
-_width                              D:D1D79F ONEONE          DATA                            
-_height                             D:D1D7A1 ONEONE          DATA                            
-_xBlocks                            D:D1D7A3 ONEONE          DATA                            
-_yBlocks                            D:D1D7A5 ONEONE          DATA                            
+_drawTiles                          D:D1ABD5 MAIN            CODE                            
+_drawString                         D:D1ABF1 MAIN            CODE                            
+_drawMario                          D:D1AE81 MARIO           CODE                            
+_updateMario                        D:D1B677 MARIO           CODE                            
+_checkMarioGround                   D:D1BEF6 MARIO           CODE                            
+_moveOutOfGround                    D:D1C266 MARIO           CODE                            
+_checkCollision                     D:D1CABC MARIO           CODE                            
+_oneone                             D:D1CB55 ONEONE          CODE                            
+_copySprites                        D:D1CDA6 SPRITES         CODE                            
+_copyTiles                          D:D1D267 TILES           CODE                            
+_abs                                D:D1D79B abs             CODE                            
+__frameset                          D:D1D7A7 frameset        CODE                            
+_colors                             D:D1D7B5 COLORS          DATA                            
+_marioGravity                       D:D1D837 MARIO           DATA                            
+_width                              D:D1D839 ONEONE          DATA                            
+_height                             D:D1D83B ONEONE          DATA                            
+_xBlocks                            D:D1D83D ONEONE          DATA                            
+_yBlocks                            D:D1D83F ONEONE          DATA                            
 
 88 external symbol(s).
 
@@ -522,7 +522,7 @@ _yBlocks                          Defined     ..\..\..\CE-PRO~1\MARIO\SRC\ONEONE
 
 OUTPUT CHECKSUM
 ===============
-bin/MARIO.hex        1BF635
+bin/MARIO.hex        1C5BBA
 
 
 
