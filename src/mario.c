@@ -109,77 +109,77 @@ void drawMario() {
 void updateMario() {
 	checkMarioGround();
 	
-	if(left && !right) { // todo: add air horizontal physics
+	if(left && !right) {
 		if(marioGround) {
 			if(dx > 0) {
-				dx -= 0x34 * 2;
+				dx -= 0x34;
 				marioState = 2;
 			}
 			else {
-				dx -= 0x13 * 2;
+				dx -= 0x13;
 				marioState = 1;
 			}
-			if(dx < -0x320 * 2) {dx = -0x320 * 2;}
+			if(dx < -0x320) {dx = -0x320;}
 			
 			direction = 1;
 		}
 		else {
 			if(dx < 0) {
-				     if(dx > -0x320 * 2) {dx -= 0x13 * 2;}
-				else if(dx <= -0x320 * 2) {dx -= 0x1c * 2;}
+				     if(dx > -0x320) {dx -= 0x13;}
+				else if(dx <= -0x320) {dx -= 0x1c;}
 			}
 			else if(dx > 0) {
-				     if(dx >= 0x320 * 2) {dx -= 0x1c * 2;}
-				else if(dx < 0x320 * 2) {
-					     if(odx >= 0x3a0 * 2) {dx -= 0x1a * 2;}
-					else if(odx < 0x3a0 * 2) {dx -= 0x13 * 2;}
+				     if(dx >= 0x320) {dx -= 0x1c;}
+				else if(dx < 0x320) {
+					     if(odx >= 0x3a0) {dx -= 0x1a;}
+					else if(odx < 0x3a0) {dx -= 0x13;}
 				}
 			}
 			
-			if(dx < -0x320 * 2) {dx = -0x320 * 2;}
-			if(dx > 0x320 * 2) {dx = 0x320 * 2;}
+			if(dx < -0x320) {dx = -0x320;}
+			if(dx > 0x320) {dx = 0x320;}
 		}
 	}
 	if(!left && right) {
 		if(marioGround) {
 			if(dx < 0) {
-				dx += 0x34 * 2;
+				dx += 0x34;
 				marioState = 2;
 			}
 			else {
-				dx += 0x13 * 2;
+				dx += 0x13;
 				marioState = 1;
 			}
-			if(dx > 0x320 * 2) {dx = 0x320 * 2;}
+			if(dx > 0x320) {dx = 0x320;}
 			
 			direction = 0;
 		}
 		else {
 			if(dx > 0) {
-				     if(dx < 0x320 * 2) {dx += 0x13 * 2;}
-				else if(dx >= 0x320 * 2) {dx += 0x1c * 2;}
+				     if(dx < 0x320) {dx += 0x13;}
+				else if(dx >= 0x320) {dx += 0x1c;}
 			}
 			else if(dx < 0) {
-				     if(dx <= -0x320 * 2) {dx = 0x1c * 2;}
-				else if(dx > -0x320 * 2) {
-					     if(odx <= -0x3a0 * 2) {dx += 0x1a * 2;}
-					else if(odx > -0x3a0 * 2) {dx += 0x13 * 2;}
+				     if(dx <= -0x320) {dx = 0x1c;}
+				else if(dx > -0x320) {
+					     if(odx <= -0x3a0) {dx += 0x1a;}
+					else if(odx > -0x3a0) {dx += 0x13;}
 				}
 			}
 			
-			if(dx > 0x320 * 2) {dx = 0x320 * 2;}
-			if(dx < -0x320 * 2) {dx = -0x320 * 2;}
+			if(dx > 0x320) {dx = 0x320;}
+			if(dx < -0x320) {dx = -0x320;}
 		}
 	}
 	if(!left && !right || left && right) {
 		if(marioGround) {
-			if(dx < -0x26 * 2) {
-				if(marioState == 2) {dx += 0x34 * 2;}
-				else {dx += 0x34 * 2;}
+			if(dx < -0x26) {
+				if(marioState == 2) {dx += 0x34;}
+				else {dx += 0x34;}
 			}
-			else if(dx > 0x26 * 2) {
-				if(marioState == 2) {dx -= 0x34 * 2;}
-				else {dx -= 0x34 * 2;}
+			else if(dx > 0x26) {
+				if(marioState == 2) {dx -= 0x34;}
+				else {dx -= 0x34;}
 			}
 			else {
 				dx = 0;
@@ -199,26 +199,34 @@ void updateMario() {
 			marioGround = 0;
 			odx = dx;
 			
-			if(dx < 0x200 * 2) {
-				dy = -0x400 * 2;
-				marioGravity = 0x40 * 4;
+			if(dx < 0x200) {
+				dy = -0x400;
+				marioGravity = 0x40;
 			}
-			if(dx >= 0x200 * 2 && dx < 0x500 * 2) {
-				dy = -0x400 * 2;
-				marioGravity = 0x3C * 4;
+			if(dx >= 0x200 && dx < 0x500) {
+				dy = -0x400;
+				marioGravity = 0x3C;
 			}
 			if(dx >= 0x500 * 2) {
-				dy = -0x500 * 2;
-				marioGravity = 0x50 * 4;
+				dy = -0x500;
+				marioGravity = 0x50;
 			}
 		}
 	}
 	else {
 		if(marioJumping) {
 			if(!up) {
-				if(marioGravity == 0x40 * 4) {marioGravity = 0xe0 * 4;}
-				if(marioGravity == 0x3C * 4) {marioGravity = 0xc0 * 4;}
-				if(marioGravity == 0x50 * 4) {marioGravity = 0x120 * 4;}
+				if(marioGravity == 0x40) {marioGravity = 0xe0;}
+				if(marioGravity == 0x3C) {marioGravity = 0xc0;}
+				if(marioGravity == 0x50) {marioGravity = 0x120;}
+			}
+			
+			if(dy > 0) {
+				marioJumping = 0;
+				
+				if(marioGravity == 0x40) {marioGravity = 0xe0;}
+				if(marioGravity == 0x3C) {marioGravity = 0xc0;}
+				if(marioGravity == 0x50) {marioGravity = 0x120;}
 			}
 		}
 		
