@@ -186,10 +186,10 @@ void updateMario() {
 		marioState = 3;
 	}
 	
-	moveOutOfGround();
-	
 	mx += dx;
 	my += dy;
+	
+	moveOutOfGround();
 	
 	if(mx < (x + 24) * 128) {
 		dx = 0;
