@@ -39,11 +39,11 @@ mario states/animations
 */
 
 void drawMario() {
-	gfx_SetColor(0x30);
+	/*gfx_SetColor(0x30);
 	gfx_FillRectangle(floor((mx / 128 +  8) / 16) * 16, floor((my / 128 +  0) / 16) * 16, 16, 16);
 	gfx_FillRectangle(floor((mx / 128 + 24) / 16) * 16, floor((my / 128 +  0) / 16) * 16, 16, 16);
 	gfx_FillRectangle(floor((mx / 128 +  8) / 16) * 16, floor((my / 128 + 16) / 16) * 16, 16, 16);
-	gfx_FillRectangle(floor((mx / 128 + 24) / 16) * 16, floor((my / 128 + 16) / 16) * 16, 16, 16);
+	gfx_FillRectangle(floor((mx / 128 + 24) / 16) * 16, floor((my / 128 + 16) / 16) * 16, 16, 16);*/
 	
 	if(marioState == 0 && marioAnimation != 0) { // idle
 		marioAnimation = 0;
@@ -309,13 +309,13 @@ void moveOutOfGround() {
 		}
 	}
 	
-	              if(tileU == 1) {my -= popOut(my, 16 * 128, floor((my / 128 +  0) / 16) * 16 * 128, 16 * 128);}
-	if(tileD == 1 && tileU == 0) {my -= popOut(my, 16 * 128, floor((my / 128 + 16) / 16) * 16 * 128, 16 * 128);}
+	              if(tileU == 1) {my += popOut(my, 16 * 128, floor((my / 128 +  0) / 16) * 16 * 128, 16 * 128);}
+	if(tileD == 1 && tileU == 0) {my += popOut(my, 16 * 128, floor((my / 128 + 16) / 16) * 16 * 128, 16 * 128);}
 }
 
 int16_t popOut(uint32_t x1, uint16_t w1, uint32_t x2, uint16_t w2) {
-	if(x2 - (x1 + w1) < x2 + w2 - x1) {return x2 - (x1 + w1);}
-	else {return x2 + w2 - x1;}
+	/*if(x2 - (x1 + w1) < x2 + w2 - x1) {*/return x2 - (x1 + w1);/*}
+	else {return x2 + w2 - x1;}*/
 }
 
 bool checkCollision(uint16_t xy1, uint16_t wh1, uint16_t xy2, uint16_t wh2) {
