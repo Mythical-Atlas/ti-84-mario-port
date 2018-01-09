@@ -4,7 +4,7 @@ Copyright (C) 1999-2008 Zilog, Inc. All Rights Reserved
 
 LINK MAP:
 
-DATE:      Tue Jan 09 08:32:00 2018
+DATE:      Tue Jan 09 13:46:31 2018
 PROCESSOR: assembler
 FILES:     obj\colors.obj         obj\font.obj           obj\main.obj           
            obj\maps.obj           obj\mario.obj          
@@ -77,7 +77,7 @@ Module: ..\..\..\CE-PRO~1\MARIO\SRC\MAIN.C (File: main.obj) Version: 1:0 01/08/2
     Segment: CODE                              D:D1AA8E    D:D1AE80      3f3h
 
 
-Module: ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C (File: mario.obj) Version: 1:0 01/09/2018 08:31:59
+Module: ..\..\..\CE-PRO~1\MARIO\SRC\MARIO.C (File: mario.obj) Version: 1:0 01/09/2018 13:46:28
 
     Name                                        Base        Top      Size
     --------------------------------------- ----------- ----------- ---------
@@ -535,7 +535,7 @@ _yBlocks                          Defined     ..\..\..\CE-PRO~1\MARIO\SRC\ONEONE
 
 OUTPUT CHECKSUM
 ===============
-bin/MARIO.hex        1ECFA8
+bin/MARIO.hex        1ED054
 
 
 
