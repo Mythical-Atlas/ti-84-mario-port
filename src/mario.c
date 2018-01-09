@@ -130,7 +130,7 @@ void updateMario() {
 			direction = 1;
 		}
 		else {
-			if(dx < 0) {
+			if(dx <= 0) {
 				     if(dx > -0x320) {dx -= 0x13;}
 				else if(dx <= -0x320) {dx -= 0x1c;}
 			}
@@ -161,7 +161,7 @@ void updateMario() {
 			direction = 0;
 		}
 		else {
-			if(dx > 0) {
+			if(dx >= 0) {
 				     if(dx < 0x320) {dx += 0x13;}
 				else if(dx >= 0x320) {dx += 0x1c;}
 			}
