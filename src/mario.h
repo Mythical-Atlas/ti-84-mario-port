@@ -11,7 +11,8 @@ extern int16_t odx; // old dx from jump start
 
 extern void checkMarioGround();
 
-extern void moveOutOfGround();
+extern void reactHorizontal();
+extern void reactVertical();
 
 extern int16_t popOut(uint32_t x1, uint16_t w1, uint32_t x2, uint16_t w2);
 
