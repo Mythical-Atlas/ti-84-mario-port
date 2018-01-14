@@ -16,4 +16,6 @@ extern void reactVertical();
 
 extern int16_t popOut(uint32_t x1, uint16_t w1, uint32_t x2, uint16_t w2);
 
+extern bool checkBlocks(int16_t x1, uint8_t y1, uint8_t w1, uint8_t h1, int16_t x2, uint8_t y2);
+
 #endif
