@@ -39,25 +39,25 @@ mario states/animations
 */
 
 void drawMario() {
-	/*
+	
 	gfx_SetColor(0x30);
-	gfx_FillRectangle(floor((mx / 128 +  8) / 16) * 16, floor((my / 128 +  0) / 16) * 16, 16, 16);
-	gfx_FillRectangle(floor((mx / 128 + 24) / 16) * 16, floor((my / 128 +  0) / 16) * 16, 16, 16);
-	gfx_FillRectangle(floor((mx / 128 +  8) / 16) * 16, floor((my / 128 + 16) / 16) * 16, 16, 16);
-	gfx_FillRectangle(floor((mx / 128 + 24) / 16) * 16, floor((my / 128 + 16) / 16) * 16, 16, 16);
+	gfx_FillRectangle(floor((mx / 128 - x +  8) / 16) * 16, floor((my / 128 +  0) / 16) * 16, 16, 16);
+	gfx_FillRectangle(floor((mx / 128 - x + 24) / 16) * 16, floor((my / 128 +  0) / 16) * 16, 16, 16);
+	gfx_FillRectangle(floor((mx / 128 - x +  8) / 16) * 16, floor((my / 128 + 16) / 16) * 16, 16, 16);
+	gfx_FillRectangle(floor((mx / 128 - x + 24) / 16) * 16, floor((my / 128 + 16) / 16) * 16, 16, 16);
 	
 	gfx_SetColor(0x1f);
-	gfx_FillRectangle(floor(mx / 128) +  8, floor(my / 128), 16, 16);
+	gfx_FillRectangle(floor(mx / 128 - x) +  8, floor(my / 128), 16, 16);
 	
 	gfx_SetColor(0x16);
-	gfx_Rectangle(floor((mx / 128 +  8) / 16) * 16, floor((my / 128 + 16) / 16) * 16, 16, 16);
-	gfx_Rectangle(floor((mx / 128 + 24) / 16) * 16, floor((my / 128 + 16) / 16) * 16, 16, 16);
-	gfx_Rectangle(floor((mx / 128 +  8) / 16) * 16, floor((my / 128 + 32) / 16) * 16, 16, 16);
-	gfx_Rectangle(floor((mx / 128 + 24) / 16) * 16, floor((my / 128 + 32) / 16) * 16, 16, 16);
+	gfx_Rectangle(floor((mx / 128 - x +  8) / 16) * 16, floor((my / 128 + 16) / 16) * 16, 16, 16);
+	gfx_Rectangle(floor((mx / 128 - x + 24) / 16) * 16, floor((my / 128 + 16) / 16) * 16, 16, 16);
+	gfx_Rectangle(floor((mx / 128 - x +  8) / 16) * 16, floor((my / 128 + 32) / 16) * 16, 16, 16);
+	gfx_Rectangle(floor((mx / 128 - x + 24) / 16) * 16, floor((my / 128 + 32) / 16) * 16, 16, 16);
 	
 	gfx_SetColor(0x12);
-	gfx_FillRectangle(floor(mx / 128) +  8, floor(my / 128) + 16, 16, 1);
-	*/
+	gfx_FillRectangle(floor(mx / 128 - x) +  8, floor(my / 128) + 16, 16, 1);
+	
 	
 	if(marioState == 0 && marioAnimation != 0) { // idle
 		marioAnimation = 0;
@@ -258,7 +258,7 @@ void updateMario() {
 	
 	mx += dx;
 	
-	//reactHorizontal();
+	reactHorizontal();
 	
 	my += dy;
 	
@@ -298,8 +298,13 @@ void reactHorizontal() {
 	bool tileL = 0;
 	bool tileR = 0;
 	
-	if(blocks[(uint16_t)floor((mx / 128 +  0) / 16)][(uint16_t)floor((my / 128 +  0) / 16)] == 1) {if(checkCollision(mx +  0 * 128, my +  0 * 128, 16 * 128, 16 * 128, floor(mx / 128 +  0) * 128, floor(my / 128 +  0) * 128, 16 * 128, 16 * 128)) {tileL = 1;}}
-	if(blocks[(uint16_t)floor((mx / 128 + 16) / 16)][(uint16_t)floor((my / 128 +  0) / 16)] == 1) {if(checkCollision(mx +  0 * 128, my +  0 * 128, 16 * 128, 16 * 128, floor(mx / 128 + 16) * 128, floor(my / 128 +  0) * 128, 16 * 128, 16 * 128)) {tileR = 1;}}
+	if(checkBlocks(-24, 0, 16, 16, -24,  0)) {tileL = 1;}
+	if(checkBlocks(-24, 0, 16, 16, - 8,  0)) {tileR = 1;}
+	//if(checkBlocks(-24, 0, 16, 16, -24, 16)) {tileL = 1;}
+	//if(checkBlocks(-24, 0, 16, 16, - 8, 16)) {tileR = 1;}
+	
+	//if(blocks[(uint16_t)floor((mx / 128 +  0) / 16)][(uint16_t)floor((my / 128 +  0) / 16)] == 1) {if(checkCollision(mx +  0 * 128, my +  0 * 128, 16 * 128, 16 * 128, floor(mx / 128 +  0) * 128, floor(my / 128 +  0) * 128, 16 * 128, 16 * 128)) {tileL = 1;}}
+	//if(blocks[(uint16_t)floor((mx / 128 + 16) / 16)][(uint16_t)floor((my / 128 +  0) / 16)] == 1) {if(checkCollision(mx +  0 * 128, my +  0 * 128, 16 * 128, 16 * 128, floor(mx / 128 + 16) * 128, floor(my / 128 +  0) * 128, 16 * 128, 16 * 128)) {tileR = 1;}}
 	
 	//if(blocks[(uint16_t)floor((mx / 128 - 24) / 16)][(uint16_t)floor((my / 128 +  0) / 16)] == 1) {if(checkCollision(mx - 24 * 128, 16 * 128, floor(mx / 128 - 24) * 128, 16 * 128) && checkCollision(my +  0 * 128, 16 * 128, floor(my / 128 +  0) * 128, 16 * 128)) {tileL = 1;}}
 	//if(blocks[(uint16_t)floor((mx / 128 -  8) / 16)][(uint16_t)floor((my / 128 +  0) / 16)] == 1) {if(checkCollision(mx - 24 * 128, 16 * 128, floor(mx / 128 -  8) * 128, 16 * 128) && checkCollision(my +  0 * 128, 16 * 128, floor(my / 128 +  0) * 128, 16 * 128)) {tileR = 1;}}
@@ -313,8 +318,8 @@ void reactHorizontal() {
 	if(blocks[(uint16_t)floor((mx / 128 -  8) / 16)][(uint16_t)floor((my / 128 + 16) / 16)] == 1) {if(checkCollision(floor(mx / 128), 16, floor((mx / 128 -  8) / 16) * 16, 16) && checkCollision(floor(my / 128), 16, floor((my / 128 + 16) / 16) * 16, 16)) {tileR = 1;}}
 	*/
 	
-	if          (tileL) {mx += popOut(mx +  0, 16 * 128, floor((mx / 128 +  8) / 16) * 16 * 128, 16 * 128);}
-	if(!tileL && tileR) {mx += popOut(mx +  0, 16 * 128, floor((mx / 128 + 24) / 16) * 16 * 128, 16 * 128);}
+	if          (tileL) {mx += popOut(mx + 0, 16 * 128, floor((mx / 128 +  0) / 16) * 16 * 128, 16 * 128);} // problem here?
+	if(!tileL && tileR) {mx += popOut(mx + 0, 16 * 128, floor((mx / 128 + 16) / 16) * 16 * 128, 16 * 128);} // or here?
 }
 
 void reactVertical() {
@@ -355,8 +360,8 @@ bool checkBlocks(int16_t x1, uint8_t y1, uint8_t w1, uint8_t h1, int16_t x2, uin
 }
 
 int16_t popOut(uint32_t x1, uint16_t w1, uint32_t x2, uint16_t w2) {
-	/*if(x2 - (x1 + w1) < (x2 + w2) - x1) {*/return x2 - (x1 + w1);//}
-	//else {return (x2 + w2) - x1;}
+	if(abs(x2 - (x1 + w1)) < abs((x2 + w2) - x1)) {return x2 - (x1 + w1);}
+	else {return (x2 + w2) - x1;}
 }
 
 bool checkCollision(uint32_t x1, uint32_t y1, uint16_t w1, uint16_t h1, uint32_t x2, uint32_t y2, uint16_t w2, uint16_t h2) {
